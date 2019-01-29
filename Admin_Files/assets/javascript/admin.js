@@ -13,20 +13,23 @@ $(document).ready(function () {
 	firebase.initializeApp(config);
 
 	// Create a variable to reference the database
-    var database = firebase.database();
+    var randomPicksDb = firebase.database().ref().child("randomPicks");
+    var playerDB = firebase.database().ref().child("Players");
 
     // Global variables
     var randomDraw;
     var drawnNums = new Array(136)
     var drawnArray = [];
     var timer;
+    var counter = 0;
 
-    function newGame() {
+    function newRound() {
         newNumber();
-		//Starting loop per available number
-		for(var i=0; i < 134; i++) {  
-            timer = setTimeout(newNumber, 10000);
-		};
+		// //Starting loop per available number
+		// for(var i=0; i < 134; i++) {  
+        //     timer = setTimeout(newNumber, 10000);
+        // };
+        timer = setInterval(newNumber,10000);
 	};
     
     // This function generates random numbers between 1 and 135
@@ -45,36 +48,41 @@ $(document).ready(function () {
 
         drawnNums[newNum] = true;
 
-        database.ref().push(newNum);
-        clearTimeout(timer);
+        randomPicksDb.push(newNum);
+
+        counter++
+
+        if(counter==135) {
+            clearInterval(timer);
+        };
 	};
 
-    // This function resets Game
-    function resetGame() {
+    // This function resets round
+    function resetRound() {
 		for(var i=1; i<drawnNums.length; i++) {
 			drawnNums[i] = false;
 		};
-		database.ref().remove();
-		newGame();
+		randomPicksDb.remove();
+		newRound();
 	};
 
-    // Kicks off game when kick-off button is pushed
-    $("#game-kickoff").on("click", function () {
+    // Kicks off round when kick-off button is pushed
+    $("#round-kickoff").on("click", function () {
         event.preventDefault();
         drawnArray = [];
-        resetGame();
+        resetRound();
     });
 
     // Clears numbers database when button is pushed
     $("#clear-numbers-database").on("click", function () {
         event.preventDefault();
-        database.ref().remove();
+        randomPicksDb.remove();
     });
 
     
     // Create Firebase event every time there is a change to the database
     // ------------------------------------------------------------------
-    database.ref().on("child_added", function(childSnapshot) {
+    randomPicksDb.on("child_added", function(childSnapshot) {
 
         var numberDrawn = childSnapshot.val()
         drawnArray.push(numberDrawn);
@@ -83,7 +91,7 @@ $(document).ready(function () {
         $("#numbers-drawn").text(drawnArray.join("  .  "));
     });
 
-    database.ref().on("child_removed", function() {
+    randomPicksDb.on("child_removed", function() {
         $("#numbers-drawn").empty();
         drawnArray = [];
     });
