@@ -57,6 +57,11 @@ $(document).ready(function () {
     // Kicks off game when kick-off button is pushed
     $("#game-kickoff").on("click", resetGame);
 
+    // Clears numbers database when button is pushed
+    $("#clear-numbers-database").on("click", function () {
+        database.ref().remove();
+    });
+
     // Reads numbers from database and populates DOM in Admin Panel
 
     
