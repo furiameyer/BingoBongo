@@ -13,7 +13,7 @@ $(document).ready(function () {
 	firebase.initializeApp(config);
 
 	// Create a variable to reference the database
-	var database = firebase.database();
+	var randomPicksDb = firebase.database().ref().child("randomPicks");
 
 
 	var drawnNums = new Array(76);
@@ -52,7 +52,7 @@ $(document).ready(function () {
 	};
 
 	// Trigger card check if changes in drawn numbers database
-	database.ref().on("child_added", function(childSnapshot) {
+	randomPicksDb.on("child_added", function(childSnapshot) {
 
 		// numberDrawn captures value of latest drawn number in admin database
 		var numberDrawn = childSnapshot.val();
@@ -74,7 +74,7 @@ $(document).ready(function () {
 		event.preventDefault();
 
 		// clears admin database of drawn numbers
-		database.ref().remove();
+		randomPicksDb.remove();
 
 		// generates new card
 		anotherCard();
