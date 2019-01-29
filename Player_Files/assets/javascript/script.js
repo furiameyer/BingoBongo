@@ -27,9 +27,7 @@ $(document).ready(function () {
 	}
 
 	function setSquare(thisSquare) {
-		var currSquare = "square"+thisSquare;
 		var newNum;
-		
 		var colPlace =new Array(0,1,2,3,4,0,1,2,3,4,0,1,3,4,0,1,2,3,4,0,1,2,3,4);
 		
 		do {
@@ -38,7 +36,8 @@ $(document).ready(function () {
 		while (drawnNums[newNum]);
 		
 		drawnNums[newNum] = true;
-		document.getElementById(currSquare).innerHTML = newNum;
+		$("#square" + thisSquare).text(newNum);
+		$("#square" + thisSquare).attr("data-valueCell",newNum);
 	}
 
 	function getNewNum() {
@@ -52,15 +51,32 @@ $(document).ready(function () {
 		newCard();
 	};
 
-	// Double click square changes background color
-	for (var i =0; i<24; i++){
-		$("#square" + i).dblclick(function(event) {
-		$(event.target).css("background-color", "#00bfff");
-	});}
+	// Trigger card check if changes in drawn numbers database
+	database.ref().on("child_added", function(childSnapshot) {
+
+		// numberDrawn captures value of latest drawn number in admin database
+		var numberDrawn = childSnapshot.val();
+		
+		// check for match in current player bingo card
+		for (var i =0; i<24; i++){
+			var currCellVal = $("#square" + i).attr("data-valueCell");
+			if (currCellVal==numberDrawn) {
+				$("#square" + i).css("background-color", "#00bfff");
+			};
+		};
+	});
 
 	// Generates first Bingo Card upon launching screen
 	anotherCard();
 
-	// Generates new Bingo Card if player calls "Bingo!"
-    $("#player-calls-Bingo").on("click", anotherCard ());
+	// Resets game and generates new Bingo Card if player calls "Bingo!"
+    $("#player-calls-Bingo").on("click", function () {
+		event.preventDefault();
+
+		// clears admin database of drawn numbers
+		database.ref().remove();
+
+		// generates new card
+		anotherCard();
+	});
 });
