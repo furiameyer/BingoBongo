@@ -18,11 +18,14 @@ $(document).ready(function () {
     // Global variables
     var randomDraw;
     var drawnNums = new Array(136)
+    var drawnArray = [];
+    var timer;
 
     function newGame() {
+        newNumber();
 		//Starting loop per available number
-		for(var i=0; i < 135; i++) {  
-			setTimeout(newNumber, 20000);
+		for(var i=0; i < 134; i++) {  
+            timer = setTimeout(newNumber, 10000);
 		};
 	};
     
@@ -43,10 +46,11 @@ $(document).ready(function () {
         drawnNums[newNum] = true;
 
         database.ref().push(newNum);
-        console.log(newNum);
+        clearTimeout(timer);
 	};
 
-	function resetGame() {
+    // This function resets Game
+    function resetGame() {
 		for(var i=1; i<drawnNums.length; i++) {
 			drawnNums[i] = false;
 		};
@@ -55,14 +59,33 @@ $(document).ready(function () {
 	};
 
     // Kicks off game when kick-off button is pushed
-    $("#game-kickoff").on("click", resetGame);
+    $("#game-kickoff").on("click", function () {
+        event.preventDefault();
+        drawnArray = [];
+        resetGame();
+    });
 
     // Clears numbers database when button is pushed
     $("#clear-numbers-database").on("click", function () {
+        event.preventDefault();
         database.ref().remove();
     });
 
-    // Reads numbers from database and populates DOM in Admin Panel
-
     
+    // Create Firebase event every time there is a change to the database
+    // ------------------------------------------------------------------
+    database.ref().on("child_added", function(childSnapshot) {
+
+        var numberDrawn = childSnapshot.val()
+        drawnArray.push(numberDrawn);
+        
+        $("#numbers-drawn").empty();
+        $("#numbers-drawn").text(drawnArray.join("  .  "));
+    });
+
+    database.ref().on("child_removed", function() {
+        $("#numbers-drawn").empty();
+        drawnArray = [];
+    });
+
 });
