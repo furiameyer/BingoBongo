@@ -43,20 +43,24 @@ $(document).ready(function () {
 
 	function getNewNum() {
 		return Math.floor(Math.random() * 75);
-		
-	}
+	};
 
 	function anotherCard() {
 		for(var i=1; i<drawnNums.length; i++) {
-		drawnNums[i] = false;
-		}
-		
+			drawnNums[i] = false;
+		};
 		newCard();
-	}
+	};
 
 	// Double click square changes background color
 	for (var i =0; i<24; i++){
 		$("#square" + i).dblclick(function(event) {
 		$(event.target).css("background-color", "#00bfff");
 	});}
+
+	// Generates first Bingo Card upon launching screen
+	anotherCard();
+
+	// Generates new Bingo Card if player calls "Bingo!"
+    $("#player-calls-Bingo").on("click", anotherCard ());
 });
