@@ -62,5 +62,5 @@ $(document).ready(function () {
 	anotherCard();
 
 	// Generates new Bingo Card if player calls "Bingo!"
-    $("#player-calls-Bingo").on("click", anotherCard ());
+    $("#player-calls-Bingo").on("click", anotherCard);
 });

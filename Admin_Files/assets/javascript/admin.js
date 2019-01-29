@@ -28,7 +28,7 @@ $(document).ready(function () {
     
     // This function generates random numbers between 1 and 135
     function randomDraw () {
-        randomDraw = Math.floor(Math.random() * 135) + 1;
+        return Math.floor(Math.random() * 135) + 1;
     };
 
     // This function generates a new, unrepeated number and saves it to the database
@@ -43,6 +43,7 @@ $(document).ready(function () {
         drawnNums[newNum] = true;
 
         database.ref().push(newNum);
+        console.log(newNum);
 	};
 
 	function resetGame() {
@@ -54,9 +55,9 @@ $(document).ready(function () {
 	};
 
     // Kicks off game when kick-off button is pushed
-    $("#game-kickoff").on("click", resetGame ());
+    $("#game-kickoff").on("click", resetGame);
 
     // Reads numbers from database and populates DOM in Admin Panel
-    
+
     
 });
