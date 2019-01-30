@@ -14,7 +14,7 @@ $(document).ready(function () {
 
 	// Create a variable to reference the database
     var randomPicksDb = firebase.database().ref().child("randomPicks");
-    var playerDb = firebase.database().ref().child("Players");
+    var activePlayerDb = firebase.database().ref().child("Players");
     
     // THIS IS CODE WE WILL NEED FOR LATER, in order to delete players
     // ----------------------------------------------------------------------------
@@ -34,6 +34,7 @@ $(document).ready(function () {
     var randomDraw;
     var drawnNums = new Array(136)
     var drawnArray = [];
+    var playerArray = [];
     var timer;
     var counter = 0;
 
@@ -58,13 +59,8 @@ $(document).ready(function () {
 
         // "true" flag ensures the number is not repeated again
         drawnNums[newNum] = true;
-
-        // newNum is added to the database with a child key of Draw + counter
-        // var counterObject = {};
-        // counterObject[`Counter${counter}`]=newNum
-        // push(counterObject).key("random");
         
-        randomPicksDb.push(newNum);
+        randomPicksDb.child(`Counter ${counter}`).set(newNum);
         
         counter++
 
@@ -78,7 +74,8 @@ $(document).ready(function () {
 		for(var i=1; i<drawnNums.length; i++) {
 			drawnNums[i] = false;
 		};
-		randomPicksDb.remove();
+        randomPicksDb.remove();
+        clearInterval(timer);
 		newRound();
 	};
 
@@ -93,14 +90,15 @@ $(document).ready(function () {
     $("#clear-numbers-database").on("click", function () {
         event.preventDefault();
         randomPicksDb.remove();
+        clearInterval(timer);
     });
 
     
     // Create Firebase event every time there is a change to the database
     // ------------------------------------------------------------------
-    randomPicksDb.on("child_added", function(childSnapshot) {
+    randomPicksDb.on("child_added", function(snap) {
 
-        var numberDrawn = childSnapshot.val()
+        var numberDrawn = snap.val();
         drawnArray.push(numberDrawn);
         
         $("#numbers-drawn").empty();
@@ -110,5 +108,14 @@ $(document).ready(function () {
     randomPicksDb.on("child_removed", function() {
         $("#numbers-drawn").empty();
         drawnArray = [];
+    });
+
+    activePlayerDb.on("child_added", function(snap) {
+
+        var newPlayer = snap.key;
+        playerArray.push(newPlayer);
+        
+        $("#active-players").empty();
+        $("#active-players").text(playerArray.join("  .  "));
     });
 });
