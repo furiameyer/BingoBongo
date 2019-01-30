@@ -93,6 +93,12 @@ $(document).ready(function () {
         clearInterval(timer);
     });
 
+    // Clears players database when button is pushed
+    $("#clear-players-database").on("click", function () {
+        event.preventDefault();
+        activePlayerDb.remove();
+    });
+
     
     // Create Firebase event every time there is a change to the database
     // ------------------------------------------------------------------
@@ -117,5 +123,10 @@ $(document).ready(function () {
         
         $("#active-players").empty();
         $("#active-players").text(playerArray.join("  .  "));
+    });
+
+    activePlayerDb.on("child_removed", function() {
+        $("#active-players").empty();
+        playerArray = [];
     });
 });
