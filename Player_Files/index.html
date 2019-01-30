@@ -10,6 +10,8 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
     <!-- Google Font CSS -->
     <link href="https://fonts.googleapis.com/css?family=Fredoka+One" rel="stylesheet">
+    <!-- Intro.js CSS for basic introduction and hints -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intro.js/2.9.3/introjs.css" />
     <!-- My CSS -->
     <link rel="stylesheet" href="assets/css/style.css">
     
@@ -20,37 +22,26 @@
 <body class="bg-info">
     <div class="container-fluid">
     
-        <!-- This is the navigation bar html -->
+        <!-- This is the navigation bar with user login html -->
 
         <nav class="navbar bg-info mb-5">
                 <h1>Bingo Bongo!</h1>
-                <form class="form-inline">
-                    <input class="form-control mr-sm-2" placeholder="Enter user name" aria-label="Search">
-                    <button class="btn btn-success my-2 my-sm-0">Start Playing!</button>
-                </form>
+                <div id="login-fields">
+                    <form class="form-inline">
+                        <input class="form-control mr-sm-2" placeholder="Enter user name" id="new-user-entry">
+                        <button class="btn btn-success my-2 my-sm-0" id="start-playing" data-intro="First login to display your first Bingo Card!">Start Playing!</button>
+                    </form>
+                </div>
         </nav>
 
         <!-- This is the leaderboard html -->
     
         <div class="row">
-            <div class="col-2">
+            <div class="col-3">
                 <div class="card bg-info">
                     <div class="card-body">
                         <h5 class="card-title text-center text-light">Leader Board ⚔️</h5>
-                        <ul class="list-group">
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                Alex
-                                <span class="badge badge-primary badge-pill">14</span>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                David
-                                <span class="badge badge-primary badge-pill">2</span>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                Rodrigo
-                                <span class="badge badge-primary badge-pill">1</span>
-                            </li>
-                        </ul>
+                        <ul class="list-group"></ul>
                     </div>
                 </div>
             </div>
@@ -63,16 +54,18 @@
                         <h5 class="card-title text-center text-light">Latest Draw</h5>
                         <div class="d-flex justify-content-center">
                             <div class="spinner-border text-light text-center mt-5" style="width: 6rem; height: 6rem;">
-                            <h2>86</h2>
+                            <h2 id="current-draw"></h2>
                             </div>
                         </div>
                     </div>
                 </div>
+
+                <a href="#" class="btn btn-danger offset-6 mt-4 w-50" id="player-calls-Bingo">BINGO!</a>
             </div>
 
             <!-- This is the Bingo Card html -->
 
-            <div class="col-5">
+            <div class="col-4">
                 <table id="bingotable">
                     <tr>
                         <th class="purple">B</th>
@@ -121,30 +114,17 @@
 
             <!-- Calling out the Chatbox API -->
 
-            <div class="col-2">
+            <div class="col">
                 <script src="https://www.shoutbox.com/chat/chat.js.php"></script>
-                <script>var chat = new Chat(5);</script>
+                <script>var chat = new Chat(10);</script>
             </div>
-
-            
-
-
-
-
-
-
         </div>
-
-        <a href="#" class="btn btn-success offset-5 mt-4" id="player-calls-Bingo">BINGO!</a>
-
-
-
-
     </div>
 
-<!-- fireBase first, jQuery , moment, then my JS -->
+<!-- fireBase first, jQuery , Intro.js, then my JS -->
 <script src="https://www.gstatic.com/firebasejs/5.8.0/firebase.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/intro.js/2.9.3/intro.js"></script>
 <script src="assets/javascript/script.js"></script>
           
 </body>

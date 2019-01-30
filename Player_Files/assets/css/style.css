@@ -12,8 +12,8 @@ body {
 #bingotable {
     margin: 0 auto;
     text-align: center;
-    width: 400px;
-    height: 400px;
+    width: 350px;
+    height: 350px;
     border-collapse: collapse;
     background: white;
 }
