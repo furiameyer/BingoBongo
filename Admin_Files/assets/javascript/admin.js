@@ -14,7 +14,21 @@ $(document).ready(function () {
 
 	// Create a variable to reference the database
     var randomPicksDb = firebase.database().ref().child("randomPicks");
-    var playerDB = firebase.database().ref().child("Players");
+    var playerDb = firebase.database().ref().child("Players");
+    
+    // THIS IS CODE WE WILL NEED FOR LATER, in order to delete players
+    // ----------------------------------------------------------------------------
+    // var playerDb2 = firebase.database().ref("Players");
+    // playerDb2.child("Albert").remove();
+
+    // removePlayer(name){
+    //     var survey=db.ref(‘Players’);
+    //     survey.child(name).remove().then(function(){
+    //         console.log(’success’);
+    //     }).catch(function(error) {
+    //        console.log("Remove failed: " + error.message)
+    //      });
+    // -----------------------------------------------------------------------------
 
     // Global variables
     var randomDraw;
@@ -25,10 +39,6 @@ $(document).ready(function () {
 
     function newRound() {
         newNumber();
-		// //Starting loop per available number
-		// for(var i=0; i < 134; i++) {  
-        //     timer = setTimeout(newNumber, 10000);
-        // };
         timer = setInterval(newNumber,10000);
 	};
     
@@ -46,10 +56,16 @@ $(document).ready(function () {
         }
         while (drawnNums[newNum]);
 
+        // "true" flag ensures the number is not repeated again
         drawnNums[newNum] = true;
 
+        // newNum is added to the database with a child key of Draw + counter
+        // var counterObject = {};
+        // counterObject[`Counter${counter}`]=newNum
+        // push(counterObject).key("random");
+        
         randomPicksDb.push(newNum);
-
+        
         counter++
 
         if(counter==135) {
@@ -95,5 +111,4 @@ $(document).ready(function () {
         $("#numbers-drawn").empty();
         drawnArray = [];
     });
-
 });
