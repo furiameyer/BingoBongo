@@ -18,6 +18,29 @@ $(document).ready(function () {
 
 	// Initialize global variables
 	var drawnNums = new Array(76);
+	var currentPlayer;
+	var logged = false;
+	var calledArray = [];
+
+	// Define winning combinations. Entries with 4 numbers have a "free" space
+	var winners = [
+		// horizontal
+		[0,1,2,3,4],
+		[5,6,7,8,9],
+		[10,11,12,13],
+		[14,15,16,17,18],
+		[19,20,21,22,23],
+		// vertical
+		[0,5,10,14,19],
+		[1,6,11,15,20],
+		[2,7,16,21],
+		[3,8,12,17,22],
+		[4,9,13,18,23],
+		// diagonal
+		[0,6,17,23],
+		[4,8,15,19]
+	];
+
 
 	// Generate numbers for Bingo Cards
 	// --------------------------------
@@ -55,29 +78,110 @@ $(document).ready(function () {
 		newCard();
 	};
 
+	function bingoButton () {
+		var newButton = $("<a>");
+		newButton.attr("href", "#");
+		newButton.attr("id", "player-calls-Bingo");
+		newButton.attr("data-intro", "Call out Bingo when you believe that you've won!");
+		newButton.addClass("btn btn-danger offset-6 mt-4 w-50");
+		newButton.text("BINGO!")
+		$("#bingo-button").append(newButton);
+	};
+
+	// Generates Bingo Button
+	bingoButton();
+
+	// Calls Intro.js functions for Onboarding
+	introJs().start();
+
 	// Tracks activity in Start Playing button
   	// ---------------------------------------
   	$("#start-playing").on("click", function(event) {
 		event.preventDefault();
 	
 		// Grabs user input
-		var newPlayer = $("#new-user-entry").val().trim();
+		currentPlayer = $("#new-user-entry").val().trim();
 
 		// Uploads player entry data to the database
-		activePlayerDb.child(newPlayer).set("0");
+		activePlayerDb.child(currentPlayer).set(0);
+		
+		// Flags that user is logged in
+		logged = true;
 		
 		// Alert - this will be a modal
-		// ...
+		// CODE HERE
 	
 		// Clears login space on screen and welcomes new player
 		$("#login-fields").empty();
 		var welcome = $("<h3>");
-		welcome.text("Welcome to Bingo Bongo, " + newPlayer + "!");
+		welcome.text("Welcome to Bingo Bongo, " + currentPlayer + "!");
 		$("#login-fields").append(welcome);
 		setTimeout(anotherCard,1000);
   	});
 
-	// Trigger card check if changes in drawn numbers database
+	  
+	// Player calls BINGO!
+	// -------------------
+    $("#player-calls-Bingo").on("click", function () {
+		event.preventDefault();
+
+		if (logged) {
+			// Bingo yell
+			var bingoYell = new Audio('./assets/images-sounds/bingo.m4a');
+			bingoYell.play();
+			
+			// removes Bingo button for remainder of round
+			$("#bingo-button").empty();
+
+			var goodbingo = false;
+
+			// confirms that there is a condition of winning
+			for (var i = 0; i < winners.length; i++) { // i represents each winning condition
+				var allcalled = true;
+				for (var j = 0; j < winners[i].length; j++) { // j represents the numbers in each winning conditions
+					var numberOnCard = parseInt($("#square" + winners[i][j]).attr("data-valueCell"));
+					var isInArray = $.inArray(numberOnCard,calledArray);
+					if (isInArray == -1) {
+						allcalled = false;
+						break; // A number in this row has not been called. No Bingo.
+					};
+				};
+				if (allcalled == true) {
+					goodbingo = true;
+					console.log("Good Bingo!");
+					// launch HERE thereIsAWinnerfunction that stops game, adds score to player
+					//, informs other players, and launches new round
+				};
+			};
+
+			if (allcalled == false) {
+				console.log("Bad Bingo");
+			};
+
+			function thereIsAWinner (){
+					// adds to score of current player
+				// var dataRef = firebase.database().ref();
+				// var currentPlayerRef = dataRef.orderByChild("Players").equalTo(currentPlayer);
+				// // var testVariable = currentPlayerRef.val();
+				// // currentPlayerScore++;
+				// console.log(currentPlayerRef);
+
+				// HELP HERE
+
+
+				// informs other players that there is a winner for the round
+				// CODE HERE
+
+				// clears admin database of drawn numbers to reset game
+				// randomPicksDb.remove();
+
+				// generates new card
+			anotherCard();
+			};
+		};
+	});
+
+	// Trigger card check whenever there is a new number drawn
 	randomPicksDb.on("child_added", function(snap) {
 
 		// numberDrawn captures value of latest drawn number in admin database
@@ -85,6 +189,13 @@ $(document).ready(function () {
 
 		// updates latest draw div
 		$("#current-draw").text(numberDrawn);
+
+		// adds number to calledArray
+		calledArray.push(numberDrawn);
+
+		// plays sound
+		var newball = new Audio('./assets/images-sounds/newball.m4a');
+        newball.play();
 		
 		// check for match in current player bingo card
 		for (var i =0; i<24; i++){
@@ -101,7 +212,7 @@ $(document).ready(function () {
 		$("#score-for-" + playerWithNewScore).text(snap.val());
 	});
 
-	// Update leaderboard whenever a change takes place in Players database
+	// Update leaderboard whenever a new player signs up
 	activePlayerDb.on("child_added", function(snap) {
 
 		// newPlayer captures name of player
@@ -123,14 +234,4 @@ $(document).ready(function () {
 		$(".list-group").append(newListItem);
 	});
 
-	// Resets game and generates new Bingo Card if player calls "Bingo!"
-    $("#player-calls-Bingo").on("click", function () {
-		event.preventDefault();
-
-		// clears admin database of drawn numbers
-		randomPicksDb.remove();
-
-		// generates new card
-		anotherCard();
-	});
 });

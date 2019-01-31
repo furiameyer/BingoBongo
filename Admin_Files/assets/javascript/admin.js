@@ -40,7 +40,7 @@ $(document).ready(function () {
 
     function newRound() {
         newNumber();
-        timer = setInterval(newNumber,10000);
+        timer = setInterval(newNumber,1000);
 	};
     
     // This function generates random numbers between 1 and 135
@@ -60,10 +60,12 @@ $(document).ready(function () {
         // "true" flag ensures the number is not repeated again
         drawnNums[newNum] = true;
         
+        // Adds new number to Database
         randomPicksDb.child(`Counter ${counter}`).set(newNum);
         
         counter++
 
+        // Stop drawing new numbers at 135 to avoid an error in code
         if(counter==135) {
             clearInterval(timer);
         };
