@@ -49,7 +49,7 @@ $(document).ready(function () {
 		// Starting loop per square
 		for(var i=0; i < 24; i++) {  
 			setSquare(i);
-			$("#square"+ i).css("background-color", "#FFFFFF");
+			// $("#square"+ i).css("background-color", "#FFFFFF");
 		}
 	}
 
@@ -119,6 +119,12 @@ $(document).ready(function () {
 		setTimeout(anotherCard,1000);
   	});
 
+	// Toggle Background Colors on user click
+    $(document).ready(function() {
+        $(".square").click(function() {
+          $(this).toggleClass("clicked");
+        });
+    });
 	  
 	// Player calls BINGO!
 	// -------------------
@@ -149,8 +155,7 @@ $(document).ready(function () {
 				if (allcalled == true) {
 					goodbingo = true;
 					console.log("Good Bingo!");
-					// launch HERE thereIsAWinnerfunction that stops game, adds score to player
-					//, informs other players, and launches new round
+					thereIsAWinner();
 				};
 			};
 
@@ -158,13 +163,23 @@ $(document).ready(function () {
 				console.log("Bad Bingo");
 			};
 
+			
+			// launch HERE thereIsAWinnerfunction that stops game, adds score to player
+			//, informs other players, and launches new round
 			function thereIsAWinner (){
-					// adds to score of current player
-				// var dataRef = firebase.database().ref();
-				// var currentPlayerRef = dataRef.orderByChild("Players").equalTo(currentPlayer);
-				// // var testVariable = currentPlayerRef.val();
-				// // currentPlayerScore++;
-				// console.log(currentPlayerRef);
+				// adds to score of current player and updates database
+
+				currentPlayerinDb = activePlayerDb.child(currentPlayer)
+
+				currentPlayerinDb.once("value", function(snap) {
+					currentPlayerScore = parseInt(snap.val());
+					console.log(currentPlayerScore);
+					var updateScore = currentPlayerScore+=1;
+					console.log("Updatescore " + updateScore);
+					snap.ref.set(updateScore);
+					
+				   });
+
 
 				// HELP HERE
 
@@ -176,7 +191,7 @@ $(document).ready(function () {
 				// randomPicksDb.remove();
 
 				// generates new card
-			anotherCard();
+			// anotherCard();
 			};
 		};
 	});
@@ -198,12 +213,12 @@ $(document).ready(function () {
         newball.play();
 		
 		// check for match in current player bingo card
-		for (var i =0; i<24; i++){
-			var currCellVal = $("#square" + i).attr("data-valueCell");
-			if (currCellVal==numberDrawn) {
-				$("#square" + i).css("background-color", "#00bfff");
-			};
-		};
+		// for (var i =0; i<24; i++){
+		// 	var currCellVal = $("#square" + i).attr("data-valueCell");
+		// 	if (currCellVal==numberDrawn) {
+		// 		$("#square" + i).css("background-color", "#00bfff");
+		// 	};
+		// };
 	});
 
 	// Update leaderboard whenever a change takes place in Player scores
