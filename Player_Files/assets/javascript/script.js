@@ -44,14 +44,20 @@ $(document).ready(function () {
 
 	// Generate numbers for Bingo Cards
 	// --------------------------------
-
 	function newCard() {
 		// Starting loop per square
 		for(var i=0; i < 24; i++) {  
 			setSquare(i);
 			// $("#square"+ i).css("background-color", "#FFFFFF");
-		}
-	}
+		};
+
+		// Toggle Background Colors on user click
+		$(document).ready(function() {
+			$(".square").click(function() {
+			  $(this).toggleClass("clicked");
+			});
+		});
+	};
 
 	function setSquare(thisSquare) {
 		var newNum;
@@ -118,13 +124,6 @@ $(document).ready(function () {
 		$("#login-fields").append(welcome);
 		setTimeout(anotherCard,1000);
   	});
-
-	// Toggle Background Colors on user click
-    $(document).ready(function() {
-        $(".square").click(function() {
-          $(this).toggleClass("clicked");
-        });
-    });
 	  
 	// Player calls BINGO!
 	// -------------------
@@ -180,22 +179,18 @@ $(document).ready(function () {
 					
 				   });
 
-
-				// HELP HERE
-
-
 				// informs other players that there is a winner for the round
 				// CODE HERE
 
 				// clears admin database of drawn numbers to reset game
-				// randomPicksDb.remove();
+				randomPicksDb.remove();
 
 				// generates new card
-			// anotherCard();
+				anotherCard();
 			};
 		};
 	});
-
+		
 	// Trigger card check whenever there is a new number drawn
 	randomPicksDb.on("child_added", function(snap) {
 
@@ -210,15 +205,15 @@ $(document).ready(function () {
 
 		// plays sound
 		var newball = new Audio('./assets/images-sounds/newball.m4a');
-        newball.play();
+		newball.play();
 		
 		// check for match in current player bingo card
-		// for (var i =0; i<24; i++){
-		// 	var currCellVal = $("#square" + i).attr("data-valueCell");
-		// 	if (currCellVal==numberDrawn) {
-		// 		$("#square" + i).css("background-color", "#00bfff");
-		// 	};
-		// };
+		for (var i =0; i<24; i++){
+			var currCellVal = $("#square" + i).attr("data-valueCell");
+			if (currCellVal==numberDrawn) {
+				$("#square" + i).css("background-color", "#00bfff");
+			};
+		};
 	});
 
 	// Update leaderboard whenever a change takes place in Player scores
