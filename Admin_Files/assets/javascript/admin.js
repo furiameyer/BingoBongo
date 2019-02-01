@@ -15,6 +15,7 @@ $(document).ready(function () {
 	// Create a variable to reference the database
     var randomPicksDb = firebase.database().ref().child("randomPicks");
     var activePlayerDb = firebase.database().ref().child("Players");
+    var winConditionDb = firebase.database().ref().child("winCondition");
     
     // THIS IS CODE WE WILL NEED FOR LATER, in order to delete players
     // ----------------------------------------------------------------------------
@@ -37,8 +38,11 @@ $(document).ready(function () {
     var playerArray = [];
     var timer;
     var counter = 0;
+    var isThereAWinner;
 
     function newRound() {
+        winConditionDb.child("roundWinner").set(false);
+        winConditionDb.child("nameOfWinner").set("Nobody");
         newNumber();
         timer = setInterval(newNumber,500);
 	};
@@ -50,25 +54,26 @@ $(document).ready(function () {
 
     // This function generates a new, unrepeated number and saves it to the database
     function newNumber () {
-        var newNum;
         
-        do {
-            newNum = randomDraw ();
-        }
-        while (drawnNums[newNum]);
+            var newNum;
+            
+            do {
+                newNum = randomDraw ();
+            }
+            while (drawnNums[newNum]);
 
-        // "true" flag ensures the number is not repeated again
-        drawnNums[newNum] = true;
-        
-        // Adds new number to Database
-        randomPicksDb.child(`Counter ${counter}`).set(newNum);
-        
-        counter++
+            // "true" flag ensures the number is not repeated again
+            drawnNums[newNum] = true;
+            
+            // Adds new number to Database
+            randomPicksDb.child(`Counter_ ${counter}`).set(newNum);
+            
+            counter++
 
-        // Stop drawing new numbers at 135 to avoid an error in code
-        if(counter==135) {
-            clearInterval(timer);
-        };
+            // Stop drawing new numbers at 135 to avoid an error in code
+            if(counter==135) {
+                clearInterval(timer);
+            };
 	};
 
     // This function resets round
@@ -102,13 +107,11 @@ $(document).ready(function () {
     });
 
     
-    // Create Firebase event every time there is a change to the database
+    // Create Firebase event every time there is a change in the database
     // ------------------------------------------------------------------
     randomPicksDb.on("child_added", function(snap) {
-
         var numberDrawn = snap.val();
         drawnArray.push(numberDrawn);
-        
         $("#numbers-drawn").empty();
         $("#numbers-drawn").text(drawnArray.join("  .  "));
     });
@@ -116,13 +119,12 @@ $(document).ready(function () {
     randomPicksDb.on("child_removed", function() {
         $("#numbers-drawn").empty();
         drawnArray = [];
+        counter=0;
     });
 
     activePlayerDb.on("child_added", function(snap) {
-
         var newPlayer = snap.key;
         playerArray.push(newPlayer);
-        
         $("#active-players").empty();
         $("#active-players").text(playerArray.join("  .  "));
     });
@@ -131,4 +133,14 @@ $(document).ready(function () {
         $("#active-players").empty();
         playerArray = [];
     });
+
+    winConditionDb.on("child_changed", function(snap) {
+        isThereAWinner = snap.val();
+        if (isThereAWinner == true || isThereAWinner !== "Nobody") {
+            clearInterval(timer);
+            randomPicksDb.remove();
+            counter=0;
+        };
+    });
+
 });
