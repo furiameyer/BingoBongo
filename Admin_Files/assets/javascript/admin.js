@@ -40,7 +40,7 @@ $(document).ready(function () {
 
     function newRound() {
         newNumber();
-        timer = setInterval(newNumber,1000);
+        timer = setInterval(newNumber,500);
 	};
     
     // This function generates random numbers between 1 and 135

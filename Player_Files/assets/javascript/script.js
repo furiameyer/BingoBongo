@@ -22,7 +22,7 @@ $(document).ready(function () {
 	var logged = false;
 	var calledArray = [];
 
-	// Define winning combinations. Entries with 4 numbers have a "free" space
+	// Define winning combinations to check against for Good Bingo. Entries with 4 numbers have a "free" space
 	var winners = [
 		// horizontal
 		[0,1,2,3,4],
@@ -89,7 +89,7 @@ $(document).ready(function () {
 		newButton.attr("href", "#");
 		newButton.attr("id", "player-calls-Bingo");
 		newButton.attr("data-intro", "Call out Bingo when you believe that you've won!");
-		newButton.addClass("btn btn-danger offset-6 mt-4 w-50");
+		newButton.addClass("btn btn-danger offset-3 offset-md-6 mt-2 mt-lg-4 mb-2 mb-lg-0 w-50");
 		newButton.text("BINGO!")
 		$("#bingo-button").append(newButton);
 	};
@@ -155,16 +155,14 @@ $(document).ready(function () {
 					goodbingo = true;
 					console.log("Good Bingo!");
 					thereIsAWinner();
+					break;
+				};
+
+				if (allcalled == false) {
+					console.log("Bad Bingo");
 				};
 			};
 
-			if (allcalled == false) {
-				console.log("Bad Bingo");
-			};
-
-			
-			// launch HERE thereIsAWinnerfunction that stops game, adds score to player
-			//, informs other players, and launches new round
 			function thereIsAWinner (){
 				// adds to score of current player and updates database
 
