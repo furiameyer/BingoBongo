@@ -27,3 +27,7 @@ th, td {
 .purple {
 background: #9b59b6;
 }
+
+.clicked {
+    background: #00bfff;
+ }
