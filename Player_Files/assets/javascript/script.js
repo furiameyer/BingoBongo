@@ -91,7 +91,8 @@ $(document).ready(function () {
 		var newButton = $("<a>");
 		newButton.attr("href", "#");
 		newButton.attr("id", "player-calls-Bingo");
-		newButton.attr("data-intro", "Call out Bingo and score 10 for one line, 30 for two lines, 50 for three lines, OR LOSE IT ALL!");
+		newButton.attr("data-step", "5");
+		newButton.attr("data-intro", "Call out Bingo and score 10 on one line, 30 on two, 50 on three, 70 on four, 100 on five, OR LOSE IT ALL!");
 		newButton.addClass("btn btn-danger offset-3 offset-md-6 mt-2 mt-lg-4 mb-2 mb-lg-0 w-50");
 		newButton.text("BINGO!")
 		$("#bingo-button").append(newButton);
@@ -256,6 +257,44 @@ $(document).ready(function () {
 			// Informs players there is a winner and mentions name + timeout of 10 seconds
 			// generates new card
         };
-    });
+	});
+	
+	// THIS IS CODE THAT ALLOWS US TO TRACK NUMBER OF CONNECTIONS
+    // ----------------------------------------------------------------------------
+    
+    // Create a variable to reference the database.
+    var database = firebase.database();
+
+    // -----------------------------
+
+    // connectionsRef references a specific location in our database.
+    // All of our connections will be stored in this directory.
+    var connectionsRef = database.ref("/Connections");
+
+    // '.info/connected' is a special location provided by Firebase that is updated
+    // every time the client's connection state changes.
+    // '.info/connected' is a boolean value, true if the client is connected and false if they are not.
+    var connectedRef = database.ref(".info/connected");
+
+    // When the client's connection state changes...
+    connectedRef.on("value", function(snap) {
+
+    // If they are connected..
+    if (snap.val()) {
+
+        // Add user to the connections list.
+        var con = connectionsRef.push(true);
+        // Remove user from the connection list when they disconnect.
+        con.onDisconnect().remove();
+    };
+	});
+	
+	// When first loaded or when the connections list changes...
+    connectionsRef.on("value", function(snap) {
+
+		// Display the viewer count in the html.
+		// The number of online users is the number of children in the connections list.
+		$("#connected-viewers").text(snap.numChildren()-1);
+		});
 
 });
