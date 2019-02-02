@@ -15,9 +15,12 @@ $(document).ready(function () {
 	// Create a variable to reference the database
 	var randomPicksDb = firebase.database().ref().child("randomPicks");
 	var activePlayerDb = firebase.database().ref().child("Players");
+	var winConditionDb = firebase.database().ref().child("winCondition");
 
 	// Initialize global variables
 	var drawnNums = new Array(76);
+	var scoreMultipler = [10,30,50,70,100];
+	var roundWins;
 	var currentPlayer;
 	var logged = false;
 	var calledArray = [];
@@ -88,7 +91,7 @@ $(document).ready(function () {
 		var newButton = $("<a>");
 		newButton.attr("href", "#");
 		newButton.attr("id", "player-calls-Bingo");
-		newButton.attr("data-intro", "Call out Bingo when you believe that you've won!");
+		newButton.attr("data-intro", "Call out Bingo and score 10 for one line, 30 for two lines, 50 for three lines, OR LOSE IT ALL!");
 		newButton.addClass("btn btn-danger offset-3 offset-md-6 mt-2 mt-lg-4 mb-2 mb-lg-0 w-50");
 		newButton.text("BINGO!")
 		$("#bingo-button").append(newButton);
@@ -138,7 +141,7 @@ $(document).ready(function () {
 			// removes Bingo button for remainder of round
 			$("#bingo-button").empty();
 
-			var goodbingo = false;
+			roundWins = 0;
 
 			// confirms that there is a condition of winning
 			for (var i = 0; i < winners.length; i++) { // i represents each winning condition
@@ -148,34 +151,34 @@ $(document).ready(function () {
 					var isInArray = $.inArray(numberOnCard,calledArray);
 					if (isInArray == -1) {
 						allcalled = false;
-						break; // A number in this row has not been called. No Bingo.
+						break; // A number in this row has not been called. No Bingo in this row.
 					};
 				};
 				if (allcalled == true) {
-					goodbingo = true;
-					console.log("Good Bingo!");
-					thereIsAWinner();
-					break;
-				};
-
-				if (allcalled == false) {
-					console.log("Bad Bingo");
+					roundWins++;
+					console.log(roundWins + " good Bingo(s)!");
 				};
 			};
 
-			function thereIsAWinner (){
+			if (roundWins !== 0) {
+				roundWinner();
+			} else {
+				console.log("Sorry not a right bingo call");
+			};
+
+			function roundWinner (){
 				// adds to score of current player and updates database
 
 				currentPlayerinDb = activePlayerDb.child(currentPlayer)
 
 				currentPlayerinDb.once("value", function(snap) {
 					currentPlayerScore = parseInt(snap.val());
-					console.log(currentPlayerScore);
-					var updateScore = currentPlayerScore+=1;
-					console.log("Updatescore " + updateScore);
+					var updateScore = currentPlayerScore + scoreMultipler[roundWins-1];
 					snap.ref.set(updateScore);
-					
 				   });
+
+				winConditionDb.child("roundWinner").set(true);
+				winConditionDb.child("nameOfWinner").set(currentPlayer);
 
 				// informs other players that there is a winner for the round
 				// CODE HERE
@@ -188,7 +191,10 @@ $(document).ready(function () {
 			};
 		};
 	});
-		
+	
+	// Create Firebase event every time there is a change to the database
+    // ------------------------------------------------------------------
+
 	// Trigger card check whenever there is a new number drawn
 	randomPicksDb.on("child_added", function(snap) {
 
@@ -241,5 +247,15 @@ $(document).ready(function () {
 		newListItem.append(newSpan);
 		$(".list-group").append(newListItem);
 	});
+
+	// Stops round and informs of new Winner!
+	winConditionDb.on("child_changed", function(snap) {
+        isThereAWinner = snap.val();
+        if (isThereAWinner == true || isThereAWinner !== "Nobody") {
+			// removes Bingo button from game
+			// Informs players there is a winner and mentions name + timeout of 10 seconds
+			// generates new card
+        };
+    });
 
 });
