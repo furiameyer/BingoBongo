@@ -16,10 +16,12 @@ $(document).ready(function () {
 	var randomPicksDb = firebase.database().ref().child("randomPicks");
 	var activePlayerDb = firebase.database().ref().child("Players");
 	var winConditionDb = firebase.database().ref().child("winCondition");
+	var database = firebase.database();
+	var queryPlayers = firebase.database().ref('Players').orderByChild('score');
 
 	// Initialize global variables
 	var drawnNums = new Array(76);
-	var scoreMultipler = [10,30,50,70,100];
+	var scoreMultipler = [10, 30, 50, 70, 100];
 	var roundWins;
 	var currentPlayer;
 	var logged = false;
@@ -28,20 +30,20 @@ $(document).ready(function () {
 	// Define winning combinations to check against for Good Bingo. Entries with 4 numbers have a "free" space
 	var winners = [
 		// horizontal
-		[0,1,2,3,4],
-		[5,6,7,8,9],
-		[10,11,12,13],
-		[14,15,16,17,18],
-		[19,20,21,22,23],
+		[0, 1, 2, 3, 4],
+		[5, 6, 7, 8, 9],
+		[10, 11, 12, 13],
+		[14, 15, 16, 17, 18],
+		[19, 20, 21, 22, 23],
 		// vertical
-		[0,5,10,14,19],
-		[1,6,11,15,20],
-		[2,7,16,21],
-		[3,8,12,17,22],
-		[4,9,13,18,23],
+		[0, 5, 10, 14, 19],
+		[1, 6, 11, 15, 20],
+		[2, 7, 16, 21],
+		[3, 8, 12, 17, 22],
+		[4, 9, 13, 18, 23],
 		// diagonal
-		[0,6,17,23],
-		[4,8,15,19]
+		[0, 6, 17, 23],
+		[4, 8, 15, 19]
 	];
 
 
@@ -49,31 +51,31 @@ $(document).ready(function () {
 	// --------------------------------
 	function newCard() {
 		// Starting loop per square
-		for(var i=0; i < 24; i++) {  
+		for (var i = 0; i < 24; i++) {
 			setSquare(i);
 			// $("#square"+ i).css("background-color", "#FFFFFF");
 		};
 
 		// Toggle Background Colors on user click
-		$(document).ready(function() {
-			$(".square").click(function() {
-			  $(this).toggleClass("clicked");
+		$(document).ready(function () {
+			$(".square").click(function () {
+				$(this).toggleClass("clicked");
 			});
 		});
 	};
 
 	function setSquare(thisSquare) {
 		var newNum;
-		var colPlace =new Array(0,1,2,3,4,0,1,2,3,4,0,1,3,4,0,1,2,3,4,0,1,2,3,4);
-		
+		var colPlace = new Array(0, 1, 2, 3, 4, 0, 1, 2, 3, 4, 0, 1, 3, 4, 0, 1, 2, 3, 4, 0, 1, 2, 3, 4);
+
 		do {
-			newNum =(colPlace[thisSquare] * 15) + getNewNum() + 1;
+			newNum = (colPlace[thisSquare] * 15) + getNewNum() + 1;
 		}
 		while (drawnNums[newNum]);
-		
+
 		drawnNums[newNum] = true;
 		$("#square" + thisSquare).text(newNum);
-		$("#square" + thisSquare).attr("data-valueCell",newNum);
+		$("#square" + thisSquare).attr("data-valueCell", newNum);
 	}
 
 	function getNewNum() {
@@ -81,13 +83,13 @@ $(document).ready(function () {
 	};
 
 	function anotherCard() {
-		for(var i=1; i<drawnNums.length; i++) {
+		for (var i = 1; i < drawnNums.length; i++) {
 			drawnNums[i] = false;
 		};
 		newCard();
 	};
 
-	function bingoButton () {
+	function bingoButton() {
 		var newButton = $("<a>");
 		newButton.attr("href", "#");
 		newButton.attr("id", "player-calls-Bingo");
@@ -105,40 +107,40 @@ $(document).ready(function () {
 	introJs().start();
 
 	// Tracks activity in Start Playing button
-  	// ---------------------------------------
-  	$("#start-playing").on("click", function(event) {
+	// ---------------------------------------
+	$("#start-playing").on("click", function (event) {
 		event.preventDefault();
-	
+
 		// Grabs user input
 		currentPlayer = $("#new-user-entry").val().trim();
 
 		// Uploads player entry data to the database
-		activePlayerDb.child(currentPlayer).set(0);
-		
+		activePlayerDb.child(currentPlayer).set({ "score": 0, "AvatarURL": "" });
+
 		// Flags that user is logged in
 		logged = true;
-		
+
 		// Alert - this will be a modal
 		// CODE HERE
-	
+
 		// Clears login space on screen and welcomes new player
 		$("#login-fields").empty();
 		var welcome = $("<h3>");
 		welcome.text("Welcome to Bingo Bongo, " + currentPlayer + "!");
 		$("#login-fields").append(welcome);
-		setTimeout(anotherCard,1000);
-  	});
-	  
+		setTimeout(anotherCard, 1000);
+	});
+
 	// Player calls BINGO!
 	// -------------------
-    $("#player-calls-Bingo").on("click", function () {
+	$("#player-calls-Bingo").on("click", function () {
 		event.preventDefault();
 
 		if (logged) {
 			// Bingo yell
 			var bingoYell = new Audio('./assets/images-sounds/bingo.m4a');
 			bingoYell.play();
-			
+
 			// removes Bingo button for remainder of round
 			$("#bingo-button").empty();
 
@@ -149,7 +151,7 @@ $(document).ready(function () {
 				var allcalled = true;
 				for (var j = 0; j < winners[i].length; j++) { // j represents the numbers in each winning conditions
 					var numberOnCard = parseInt($("#square" + winners[i][j]).attr("data-valueCell"));
-					var isInArray = $.inArray(numberOnCard,calledArray);
+					var isInArray = $.inArray(numberOnCard, calledArray);
 					if (isInArray == -1) {
 						allcalled = false;
 						break; // A number in this row has not been called. No Bingo in this row.
@@ -167,16 +169,16 @@ $(document).ready(function () {
 				console.log("Sorry not a right bingo call");
 			};
 
-			function roundWinner (){
+			function roundWinner() {
 				// adds to score of current player and updates database
 
-				currentPlayerinDb = activePlayerDb.child(currentPlayer)
+				currentPlayerinDb = activePlayerDb.child(currentPlayer).child("score");
 
-				currentPlayerinDb.once("value", function(snap) {
+				currentPlayerinDb.once("value", function (snap) {
 					currentPlayerScore = parseInt(snap.val());
-					var updateScore = currentPlayerScore + scoreMultipler[roundWins-1];
+					var updateScore = currentPlayerScore + scoreMultipler[roundWins - 1];
 					snap.ref.set(updateScore);
-				   });
+				});
 
 				winConditionDb.child("roundWinner").set(true);
 				winConditionDb.child("nameOfWinner").set(currentPlayer);
@@ -192,12 +194,12 @@ $(document).ready(function () {
 			};
 		};
 	});
-	
+
 	// Create Firebase event every time there is a change to the database
-    // ------------------------------------------------------------------
+	// ------------------------------------------------------------------
 
 	// Trigger card check whenever there is a new number drawn
-	randomPicksDb.on("child_added", function(snap) {
+	randomPicksDb.on("child_added", function (snap) {
 
 		// numberDrawn captures value of latest drawn number in admin database
 		var numberDrawn = snap.val();
@@ -209,92 +211,89 @@ $(document).ready(function () {
 		calledArray.push(numberDrawn);
 
 		// plays sound
-		var newball = new Audio('./assets/images-sounds/newball.m4a');
-		newball.play();
-		
+		var newBall = new Audio('./assets/images-sounds/newball.m4a');
+		newBall.addEventListener('loadeddata', function () {
+			newBall.play;
+		});
+
 		// check for match in current player bingo card
-		for (var i =0; i<24; i++){
+		for (var i = 0; i < 24; i++) {
 			var currCellVal = $("#square" + i).attr("data-valueCell");
-			if (currCellVal==numberDrawn) {
+			if (currCellVal == numberDrawn) {
 				$("#square" + i).css("background-color", "#00bfff");
 			};
 		};
 	});
 
-	// Update leaderboard whenever a change takes place in Player scores
-	activePlayerDb.on("child_changed", function(snap) {
-		var playerWithNewScore = snap.key;
-		$("#score-for-" + playerWithNewScore).text(snap.val());
-	});
-
 	// Update leaderboard whenever a new player signs up
-	activePlayerDb.on("child_added", function(snap) {
+	queryPlayers.on("child_added", function (snap) {
 
 		// newPlayer captures name of player
 		var newPlayer = snap.key;
 
 		// newScore capture latest score for player
-		var newScore = snap.val();
+		var newScore = snap.val().score;
 
-		// updates Leader Board with player name and score
+		// ads new player to Leader Board
 		var newListItem = $("<li>");
 		newListItem.addClass("list-group-item d-flex justify-content-between align-items-center");
-		newListItem.attr("id","player-name-" + newPlayer);
+		newListItem.attr("id", "player-name-" + newPlayer);
 		newListItem.text(newPlayer);
 		var newSpan = $("<span>");
 		newSpan.addClass("badge badge-primary badge-pill");
-		newSpan.attr("id","score-for-" + newPlayer);
+		newSpan.attr("id", "score-for-" + newPlayer);
 		newSpan.text(newScore);
 		newListItem.append(newSpan);
-		$(".list-group").append(newListItem);
+		$(".list-group").prepend(newListItem);
+	});
+
+	// Update leaderboard whenever a change takes place in Player scores
+	activePlayerDb.on("child_changed", function (snap) {
+		var playerWithNewScore = snap.key;
+		$("#score-for-" + playerWithNewScore).text(snap.val().score);
 	});
 
 	// Stops round and informs of new Winner!
-	winConditionDb.on("child_changed", function(snap) {
-        isThereAWinner = snap.val();
-        if (isThereAWinner == true || isThereAWinner !== "Nobody") {
+	winConditionDb.on("child_changed", function (snap) {
+		isThereAWinner = snap.val();
+		if (isThereAWinner == true || isThereAWinner !== "Nobody") {
 			// removes Bingo button from game
 			// Informs players there is a winner and mentions name + timeout of 10 seconds
 			// generates new card
-        };
+		};
 	});
-	
+
 	// THIS IS CODE THAT ALLOWS US TO TRACK NUMBER OF CONNECTIONS
-    // ----------------------------------------------------------------------------
-    
-    // Create a variable to reference the database.
-    var database = firebase.database();
+	// ----------------------------------------------------------
 
-    // -----------------------------
+	// connectionsRef references a specific location in our database.
+	// All of our connections will be stored in this directory.
+	var connectionsRef = database.ref("/Connections");
 
-    // connectionsRef references a specific location in our database.
-    // All of our connections will be stored in this directory.
-    var connectionsRef = database.ref("/Connections");
+	// '.info/connected' is a special location provided by Firebase that is updated
+	// every time the client's connection state changes.
+	// '.info/connected' is a boolean value, true if the client is connected and false if they are not.
+	var connectedRef = database.ref(".info/connected");
 
-    // '.info/connected' is a special location provided by Firebase that is updated
-    // every time the client's connection state changes.
-    // '.info/connected' is a boolean value, true if the client is connected and false if they are not.
-    var connectedRef = database.ref(".info/connected");
+	// When the client's connection state changes...
+	connectedRef.on("value", function (snap) {
 
-    // When the client's connection state changes...
-    connectedRef.on("value", function(snap) {
+		// If they are connected..
+		if (snap.val()) {
 
-    // If they are connected..
-    if (snap.val()) {
-
-        // Add user to the connections list.
-        var con = connectionsRef.push(true);
-        // Remove user from the connection list when they disconnect.
-        con.onDisconnect().remove();
-    };
+			// Add user to the connections list.
+			var con = connectionsRef.push(true);
+			// Remove user from the connection list when they disconnect.
+			con.onDisconnect().remove();
+		};
 	});
-	
+
 	// When first loaded or when the connections list changes...
-    connectionsRef.on("value", function(snap) {
+	connectionsRef.on("value", function (snap) {
 
 		// Display the viewer count in the html.
 		// The number of online users is the number of children in the connections list.
-		$("#connected-viewers").text(snap.numChildren()-1);
-		});
+		$("#connected-viewers").text(snap.numChildren() - 1);
+	});
 
 });
