@@ -19,6 +19,19 @@ $(document).ready(function () {
 	var database = firebase.database();
 	var queryPlayers = firebase.database().ref('Players').orderByChild('score');
 
+	// Variables for tracking number of simultaneous connections to the database (condition of 3 to play)
+	// --------------------------------------------------------------------------------------------------
+
+	// connectionsRef references a specific location in our database.
+	// All of our connections will be stored in this directory.
+	var connectionsRef = database.ref("/Connections");
+
+	// '.info/connected' is a special location provided by Firebase that is updated
+	// every time the client's connection state changes.
+	// '.info/connected' is a boolean value, true if the client is connected and false if they are not.
+	var connectedRef = database.ref(".info/connected");
+
+
 	// Initialize global variables
 	var drawnNums = new Array(76);
 	var scoreMultipler = [10, 30, 50, 70, 100];
@@ -48,7 +61,6 @@ $(document).ready(function () {
 
 
 	// Generate numbers for Bingo Cards
-	// --------------------------------
 	function newCard() {
 		// Starting loop per square
 		for (var i = 0; i < 24; i++) {
@@ -89,6 +101,7 @@ $(document).ready(function () {
 		newCard();
 	};
 
+	// Generate BINGO! button
 	function bingoButton() {
 		var newButton = $("<a>");
 		newButton.attr("href", "#");
@@ -100,14 +113,13 @@ $(document).ready(function () {
 		$("#bingo-button").append(newButton);
 	};
 
-	// Generates Bingo Button
+	// Calls BINGO! button function
 	bingoButton();
 
 	// Calls Intro.js functions for Onboarding
 	introJs().start();
 
-	// Tracks activity in Start Playing button
-	// ---------------------------------------
+	// Tracks activity in Sign In button
 	$("#start-playing").on("click", function (event) {
 		event.preventDefault();
 
@@ -132,7 +144,6 @@ $(document).ready(function () {
 	});
 
 	// Player calls BINGO!
-	// -------------------
 	$("#player-calls-Bingo").on("click", function () {
 		event.preventDefault();
 
@@ -195,9 +206,8 @@ $(document).ready(function () {
 		};
 	});
 
-	// Create Firebase event every time there is a change to the database
-	// ------------------------------------------------------------------
-
+	// Firebase events every time there is a change to the database
+	// ------------------------------------------------------------
 	// Trigger card check whenever there is a new number drawn
 	randomPicksDb.on("child_added", function (snap) {
 
@@ -225,32 +235,30 @@ $(document).ready(function () {
 		};
 	});
 
-	// Update leaderboard whenever a new player signs up
-	queryPlayers.on("child_added", function (snap) {
+	// Update leaderboard whenever a new player signs up or the score of an exisitng player changes
+	queryPlayers.on("value", function (snap) {
+		
+		$(".list-group").empty();
 
-		// newPlayer captures name of player
-		var newPlayer = snap.key;
+		snap.forEach(function(childSnap) {
+			// capture name of player
+			var newPlayer = childSnap.key;
 
-		// newScore capture latest score for player
-		var newScore = snap.val().score;
+			// capture latest score for player
+			var newScore = childSnap.val().score;
 
-		// ads new player to Leader Board
-		var newListItem = $("<li>");
-		newListItem.addClass("list-group-item d-flex justify-content-between align-items-center");
-		newListItem.attr("id", "player-name-" + newPlayer);
-		newListItem.text(newPlayer);
-		var newSpan = $("<span>");
-		newSpan.addClass("badge badge-primary badge-pill");
-		newSpan.attr("id", "score-for-" + newPlayer);
-		newSpan.text(newScore);
-		newListItem.append(newSpan);
-		$(".list-group").prepend(newListItem);
-	});
-
-	// Update leaderboard whenever a change takes place in Player scores
-	activePlayerDb.on("child_changed", function (snap) {
-		var playerWithNewScore = snap.key;
-		$("#score-for-" + playerWithNewScore).text(snap.val().score);
+			// ads new player to Leader Board
+			var newListItem = $("<li>");
+			newListItem.addClass("list-group-item d-flex justify-content-between align-items-center");
+			newListItem.attr("id", "player-name-" + newPlayer);
+			newListItem.text(newPlayer);
+			var newSpan = $("<span>");
+			newSpan.addClass("badge badge-primary badge-pill");
+			newSpan.attr("id", "score-for-" + newPlayer);
+			newSpan.text(newScore);
+			newListItem.append(newSpan);
+			$(".list-group").prepend(newListItem);
+		});
 	});
 
 	// Stops round and informs of new Winner!
@@ -262,18 +270,6 @@ $(document).ready(function () {
 			// generates new card
 		};
 	});
-
-	// THIS IS CODE THAT ALLOWS US TO TRACK NUMBER OF CONNECTIONS
-	// ----------------------------------------------------------
-
-	// connectionsRef references a specific location in our database.
-	// All of our connections will be stored in this directory.
-	var connectionsRef = database.ref("/Connections");
-
-	// '.info/connected' is a special location provided by Firebase that is updated
-	// every time the client's connection state changes.
-	// '.info/connected' is a boolean value, true if the client is connected and false if they are not.
-	var connectedRef = database.ref(".info/connected");
 
 	// When the client's connection state changes...
 	connectedRef.on("value", function (snap) {
