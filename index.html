@@ -1,0 +1,173 @@
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Reset CSS -->
+    <link rel="stylesheet" href="assets/css/reset.css">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS"
+        crossorigin="anonymous">
+    <!-- Google Font CSS -->
+    <link href="https://fonts.googleapis.com/css?family=Fredoka+One" rel="stylesheet">
+    <!-- Intro.js CSS for basic introduction and hints -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intro.js/2.9.3/introjs.css" />
+    <!-- My CSS -->
+    <link rel="stylesheet" href="assets/css/style.css">
+
+    <link rel='icon' href='assets/images-sounds/favicon.ico' type='image/x-icon'/>
+
+    <title>Bingo Bongo!</title>
+
+</head>
+
+<body class="bg-info">
+    <div class="container-fluid">
+
+        <!-- This is the navigation bar with user login html -->
+
+        <nav class="navbar bg-info mb-5">
+            <span class="navbar-brand" style="font-size: 40px;">
+                <img src="assets/images-sounds/bongo.png" width="50" height="50" class="d-inline-block align-bottom"
+                    alt="">
+                Bingo Bongo!
+            </span>
+            <h5>Live Players <span class="badge badge-secondary" id="connected-viewers" data-step="2" data-intro="Game starts when there are at least three players connected"></span></h5>
+            <div id="login-fields">
+                <form class="form-inline">
+                    <input class="form-control mr-sm-2" placeholder="Enter user name" id="new-user-entry">
+                    <button class="btn btn-success my-2 my-sm-0" id="sign-in" data step="1" data-intro="Enter your user name to start playing!">Sign
+                        in</button>
+                </form>
+            </div>
+        </nav>
+
+        <!-- This is the leaderboard html -->
+
+        <div class="row">
+            <div class="col-lg-3 col-6 mb-2">
+                <div class="card bg-info">
+                    <div class="card-body">
+                        <h5 class="card-title text-center text-light">Top 5 Players ⚔️</h5>
+                        <ul class="list-group"></ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- This is the countdown to start html -->
+
+            <div class="col-lg-2 col-6">
+                <div id="info-panel-color" class="card bg-warning ml-1" data-step="3" data-intro="Once the game starts, this section deisplays the latest number called. Numbers are called every 7 seconds!">
+                    <div class="card-body">
+                        <h5 id="countdown-spinner-header" class="card-title text-center text-light">Player Requirement</h5>
+                        <div id="countdown-spinner" class="d-flex justify-content-center">
+                            <h2 class="text-light mt-5" style="font-size: 15px;">3 live players needed to start...</h2>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="bingo-button"></div>
+
+            </div>
+
+            <!-- This is the Bingo Card html -->
+
+            <div class="col-lg-4 col-md-6 col-12 mb-3">
+                <table id="bingotable">
+                    <tr>
+                        <th class="purple">B</th>
+                        <th class="purple">I</th>
+                        <th class="purple">N</th>
+                        <th class="purple">G</th>
+                        <th class="purple">O</th>
+                    </tr>
+                    <tr>
+                        <td class="square" id="square0"> &nbsp;</td>
+                        <td class="square" id="square1"> &nbsp;</td>
+                        <td class="square" id="square2"> &nbsp;</td>
+                        <td class="square" id="square3"> &nbsp;</td>
+                        <td class="square" id="square4"> &nbsp;</td>
+                    </tr>
+                    <tr>
+                        <td class="square" id="square5" data-step="4" data-intro="Click on a Bingo square to keep track of your game">
+                            &nbsp;</td>
+                        <td class="square" id="square6"> &nbsp;</td>
+                        <td class="square" id="square7"> &nbsp;</td>
+                        <td class="square" id="square8"> &nbsp;</td>
+                        <td class="square" id="square9"> &nbsp;</td>
+                    </tr>
+                    <tr>
+                        <td class="square" id="square10"> &nbsp;</td>
+                        <td class="square" id="square11"> &nbsp;</td>
+                        <td class="square" id="squarefree">FREE</td>
+                        <td class="square" id="square12"> &nbsp;</td>
+                        <td class="square" id="square13"> &nbsp;</td>
+                    </tr>
+                    <tr>
+                        <td class="square" id="square14"> &nbsp;</td>
+                        <td class="square" id="square15"> &nbsp;</td>
+                        <td class="square" id="square16"> &nbsp;</td>
+                        <td class="square" id="square17"> &nbsp;</td>
+                        <td class="square" id="square18"> &nbsp;</td>
+                    </tr>
+                    <tr>
+                        <td class="square" id="square19"> &nbsp;</td>
+                        <td class="square" id="square20"> &nbsp;</td>
+                        <td class="square" id="square21"> &nbsp;</td>
+                        <td class="square" id="square22"> &nbsp;</td>
+                        <td class="square" id="square23"> &nbsp;</td>
+                    </tr>
+                </table>
+            </div>
+
+            <!-- Calling out the Chatbox API -->
+
+            <div class="col-lg-2 offset-lg-1 offset-xl-0 col-xl-3 col-md-6 col-12">
+                <div class="card bg-info ml-1">
+                    <div class="card-body">
+                        <iframe src="https://www6.cbox.ws/box/?boxid=821694&boxtag=aLjjIE" width="100%" height="450"
+                            allowtransparency="yes" allow="autoplay" frameborder="0" marginheight="0" marginwidth="0"
+                            scrolling="auto"></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer class="pt-4 my-md-5 pt-md-5 border-top">
+            <div class="row">
+                <div class="col-12 col-md-1">
+                    <img class="mb-2" src="assets/images-sounds/bongo.png" alt="" width="50" height="50">
+                    <small class="d-block mb-3 text-muted">&copy; 2019</small>
+                </div>
+                <div class="col-6 col-md">
+                    <h5>Da Rules!(Tips and Tricks)</h5>
+                    <ul class="list-unstyled text-small">
+                        <li class="text-muted">Need 3 live connections to play</li>
+                        <li class="text-muted">Sign in to display Bingo board</li>
+                        <li class="text-muted">Don't press BINGO! unless you mean it!</li>
+                        <li class="text-muted">The more rows you collect, the higher the score</li>
+                    </ul>
+                </div>
+                <div class="col-6 col-md">
+                    <h5>Meet the Developers</h5>
+                    <ul class="list-unstyled text-small">
+                        <li><a class="text-muted" href="https://github.com/furiameyer" target="_blank">Ariel</a></li>
+                        <li><a class="text-muted" href="https://github.com/ahs012" target="_blank">Albert</a></li>
+                        <li><a class="text-muted" href="https://vicklawl.github.io/Resumehtml/" target="_blank">Victor</a></li>
+                    </ul>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- fireBase first, jQuery , Intro.js, then my JS -->
+    <script src="https://www.gstatic.com/firebasejs/5.8.0/firebase.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/intro.js/2.9.3/intro.js"></script>
+    <script src="assets/javascript/script.js"></script>
+
+</body>
+
+</html>

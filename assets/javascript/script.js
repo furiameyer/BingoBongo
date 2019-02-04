@@ -1,6 +1,9 @@
 // Run this first
 $(document).ready(function () {
 
+	// VARIABLES ///////////////////////////////////////////////////////////////////////////////////////////
+	// /////////////////////////////////////////////////////////////////////////////////////////////////////
+
 	// Initialize Firebase
 	var config = {
 		apiKey: "AIzaSyD_-3-lBIv3PPo6JqTdd_0ujlntX3tmpOo",
@@ -12,12 +15,12 @@ $(document).ready(function () {
 	};
 	firebase.initializeApp(config);
 
-	// Create a variable to reference the database
+	// Variables to reference the database
 	var randomPicksDb = firebase.database().ref().child("randomPicks");
 	var activePlayerDb = firebase.database().ref().child("Players");
 	var winConditionDb = firebase.database().ref().child("winCondition");
 	var database = firebase.database();
-	var queryPlayers = firebase.database().ref('Players').orderByChild('score');
+	var queryPlayers = firebase.database().ref('Players').orderByChild('score').limitToLast(5);
 
 	// Variables for tracking number of simultaneous connections to the database (condition of 3 to play)
 	// --------------------------------------------------------------------------------------------------
@@ -31,7 +34,6 @@ $(document).ready(function () {
 	// '.info/connected' is a boolean value, true if the client is connected and false if they are not.
 	var connectedRef = database.ref(".info/connected");
 
-
 	// Initialize global variables
 	var drawnNums = new Array(76);
 	var scoreMultipler = [10, 30, 50, 70, 100];
@@ -39,6 +41,10 @@ $(document).ready(function () {
 	var currentPlayer;
 	var logged = false;
 	var calledArray = [];
+	var countdown = 21;
+	var countdownInt;
+	var nameOfWinner;
+	var livePlayers;
 
 	// Define winning combinations to check against for Good Bingo. Entries with 4 numbers have a "free" space
 	var winners = [
@@ -59,10 +65,18 @@ $(document).ready(function () {
 		[4, 8, 15, 19]
 	];
 
+	// FUNCTIONS ///////////////////////////////////////////////////////////////////////////////////////////
+	// /////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	// Generate numbers for Bingo Cards
 	function newCard() {
-		// Starting loop per square
+
+		// Reset possible number options for Bingo card
+		for (var i = 1; i < drawnNums.length; i++) {
+			drawnNums[i] = false;
+		};
+
+		// Start loop to fill in each square on Bingo card
 		for (var i = 0; i < 24; i++) {
 			setSquare(i);
 			// $("#square"+ i).css("background-color", "#FFFFFF");
@@ -76,6 +90,7 @@ $(document).ready(function () {
 		});
 	};
 
+	// Generate random number for the Bingo card square
 	function setSquare(thisSquare) {
 		var newNum;
 		var colPlace = new Array(0, 1, 2, 3, 4, 0, 1, 2, 3, 4, 0, 1, 3, 4, 0, 1, 2, 3, 4, 0, 1, 2, 3, 4);
@@ -94,13 +109,6 @@ $(document).ready(function () {
 		return Math.floor(Math.random() * 75);
 	};
 
-	function anotherCard() {
-		for (var i = 1; i < drawnNums.length; i++) {
-			drawnNums[i] = false;
-		};
-		newCard();
-	};
-
 	// Generate BINGO! button
 	function bingoButton() {
 		var newButton = $("<a>");
@@ -113,39 +121,100 @@ $(document).ready(function () {
 		$("#bingo-button").append(newButton);
 	};
 
-	// Calls BINGO! button function
-	bingoButton();
+	// Display countdown to start round
+	function displayCountdown() {
+		$("#countdown-spinner-header").text("Countdown to Round");
+		$("#countdown-spinner").empty();
+		$("#bingo-button").empty();
+		var timerDOM = $("<h2>");
+		timerDOM.addClass("text-light mt-5");
+		timerDOM.text(countdown);
+		$("#countdown-spinner").append(timerDOM);
+	};
 
-	// Calls Intro.js functions for Onboarding
-	introJs().start();
+	function countdownToRound() {
+		countdown--;
+		if (countdown <= 0) {
+			clearInterval(countdownInt);
+			displayNumberCalls();
+		} else {
+			displayCountdown();
+		};
+	};
+
+	// Display Numbers Called
+	function displayNumberCalls() {
+		$("#info-panel-color").removeClass("card bg-warning ml-1");
+		$("#info-panel-color").addClass("card bg-info ml-1");
+		$("#countdown-spinner-header").text("New Ball");
+		$("#countdown-spinner").empty();
+		var spinnerDOM = $("<div>");
+		spinnerDOM.addClass("spinner-border text-light text-center mt-5");
+		spinnerDOM.attr("style", "width: 6rem; height: 6rem;");
+		var currentNumberDOM = $("<h2>");
+		currentNumberDOM.attr("id", "current-draw");
+		spinnerDOM.append(currentNumberDOM);
+		$("#countdown-spinner").append(spinnerDOM);
+		bingoButton();
+	};
+
+	// Announce Winner for round
+	function announceWinner() {
+		$("#info-panel-color").removeClass("card bg-info ml-1");
+		$("#info-panel-color").addClass("card bg-success ml-1");
+		$("#countdown-spinner-header").text("Round Winner!");
+		$("#countdown-spinner").empty();
+
+		winConditionDb.child("nameOfWinner").once("value", function (snap) {
+			nameOfWinner = snap.val();
+		});
+
+		var winnerDOM = $("<h2>");
+		winnerDOM.addClass("text-light mt-5");
+		winnerDOM.text(nameOfWinner);
+		$("#countdown-spinner").append(winnerDOM);
+	};
+
+	// No Bingo Announcement
+	function noBingo() {
+		$("#info-panel-color").removeClass("card bg-info ml-1");
+		$("#info-panel-color").addClass("card bg-warning ml-1");
+		$("#countdown-spinner-header").text("Sorry!");
+		$("#countdown-spinner").empty();
+		var noBingoDOM = $("<h2>");
+		noBingoDOM.addClass("text-light mt-5");
+		noBingoDOM.text("No BINGO...");
+		$("#countdown-spinner").append(noBingoDOM);
+	};
+
+	// BUTTON EVENT TRACKERS ///////////////////////////////////////////////////////////////////////////////
+	// /////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	// Tracks activity in Sign In button
-	$("#start-playing").on("click", function (event) {
+	$(document).on("click", "#sign-in", function (event) {
 		event.preventDefault();
 
 		// Grabs user input
 		currentPlayer = $("#new-user-entry").val().trim();
 
 		// Uploads player entry data to the database
-		activePlayerDb.child(currentPlayer).set({ "score": 0, "AvatarURL": "" });
+		activePlayerDb.child(currentPlayer).set({ "score": 0, "AvatarURL": "", "ready2Play": "N" });
 
 		// Flags that user is logged in
 		logged = true;
-
-		// Alert - this will be a modal
-		// CODE HERE
 
 		// Clears login space on screen and welcomes new player
 		$("#login-fields").empty();
 		var welcome = $("<h3>");
 		welcome.text("Welcome to Bingo Bongo, " + currentPlayer + "!");
 		$("#login-fields").append(welcome);
-		setTimeout(anotherCard, 1000);
+		setTimeout(newCard, 1000);
 	});
 
 	// Player calls BINGO!
-	$("#player-calls-Bingo").on("click", function () {
+	$(document).on("click", "#player-calls-Bingo", function () {
 		event.preventDefault();
+		console.log("Bingo called!")
 
 		if (logged) {
 			// Bingo yell
@@ -177,7 +246,7 @@ $(document).ready(function () {
 			if (roundWins !== 0) {
 				roundWinner();
 			} else {
-				console.log("Sorry not a right bingo call");
+				noBingo();
 			};
 
 			function roundWinner() {
@@ -193,21 +262,13 @@ $(document).ready(function () {
 
 				winConditionDb.child("roundWinner").set(true);
 				winConditionDb.child("nameOfWinner").set(currentPlayer);
-
-				// informs other players that there is a winner for the round
-				// CODE HERE
-
-				// clears admin database of drawn numbers to reset game
-				randomPicksDb.remove();
-
-				// generates new card
-				anotherCard();
 			};
 		};
 	});
 
-	// Firebase events every time there is a change to the database
-	// ------------------------------------------------------------
+	// FIREBASE EVENT TRACKERS /////////////////////////////////////////////////////////////////////////////
+	// /////////////////////////////////////////////////////////////////////////////////////////////////////
+	
 	// Trigger card check whenever there is a new number drawn
 	randomPicksDb.on("child_added", function (snap) {
 
@@ -237,10 +298,10 @@ $(document).ready(function () {
 
 	// Update leaderboard whenever a new player signs up or the score of an exisitng player changes
 	queryPlayers.on("value", function (snap) {
-		
+
 		$(".list-group").empty();
 
-		snap.forEach(function(childSnap) {
+		snap.forEach(function (childSnap) {
 			// capture name of player
 			var newPlayer = childSnap.key;
 
@@ -261,17 +322,7 @@ $(document).ready(function () {
 		});
 	});
 
-	// Stops round and informs of new Winner!
-	winConditionDb.on("child_changed", function (snap) {
-		isThereAWinner = snap.val();
-		if (isThereAWinner == true || isThereAWinner !== "Nobody") {
-			// removes Bingo button from game
-			// Informs players there is a winner and mentions name + timeout of 10 seconds
-			// generates new card
-		};
-	});
-
-	// When the client's connection state changes...
+	// Update number of connection when the client's connection state changes
 	connectedRef.on("value", function (snap) {
 
 		// If they are connected..
@@ -284,12 +335,45 @@ $(document).ready(function () {
 		};
 	});
 
-	// When first loaded or when the connections list changes...
+	// Keep track of number of live connections and trigger game when number of connections reaches 3
 	connectionsRef.on("value", function (snap) {
 
 		// Display the viewer count in the html.
 		// The number of online users is the number of children in the connections list.
-		$("#connected-viewers").text(snap.numChildren() - 1);
+		livePlayers = parseInt(snap.numChildren() - 1);
+		$("#connected-viewers").text(livePlayers);
+
+		// Countdown starts automatically when there are three live players or more
+		if (livePlayers > 2) {
+			countdownInt = setInterval(countdownToRound, 1000);
+		};
 	});
+
+	// Check for Bingo winners and if so, stop round and announce
+	winConditionDb.on("child_changed", function (snap) {
+		var isThereAWinner = snap.val();
+		if (isThereAWinner == true || isThereAWinner !== "Nobody") {
+
+			// removes Bingo button for all players
+			$("#bingo-button").empty();
+
+			// announces winner
+			announceWinner();
+
+			// kicks off another round
+			// if (livePlayers > 2) {
+			// 	countdownInt = setInterval(countdownToRound,10000);
+			// };
+		};
+	});
+
+	// STARTUP PROCESS /////////////////////////////////////////////////////////////////////////////////////
+	// /////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	// Calls BINGO! button function
+	bingoButton();
+
+	// Calls Intro.js functions for Onboarding
+	introJs().start();
 
 });
