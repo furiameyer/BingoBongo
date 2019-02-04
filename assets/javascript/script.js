@@ -21,6 +21,7 @@ $(document).ready(function () {
 	var winConditionDb = firebase.database().ref().child("winCondition");
 	var database = firebase.database();
 	var queryPlayers = firebase.database().ref('Players').orderByChild('score').limitToLast(5);
+	var KickoffDb = firebase.database().ref().child("Kickoff");
 
 	// Variables for tracking number of simultaneous connections to the database (condition of 3 to play)
 	// --------------------------------------------------------------------------------------------------
@@ -335,16 +336,22 @@ $(document).ready(function () {
 		};
 	});
 
-	// Keep track of number of live connections and trigger game when number of connections reaches 3
+	// Keep track of number of live connections
 	connectionsRef.on("value", function (snap) {
 
 		// Display the viewer count in the html.
 		// The number of online users is the number of children in the connections list.
 		livePlayers = parseInt(snap.numChildren() - 1);
 		$("#connected-viewers").text(livePlayers);
+	});
+
+	// Check for Admin to start round and kickoff game
+	KickoffDb.on("child_changed", function (snap) {
+
+		var order2Kickoff = snap.val();
 
 		// Countdown starts automatically when there are three live players or more
-		if (livePlayers > 2) {
+		if (order2Kickoff == true) {
 			countdownInt = setInterval(countdownToRound, 1000);
 		};
 	});

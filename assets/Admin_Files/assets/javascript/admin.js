@@ -19,6 +19,7 @@ $(document).ready(function () {
     var randomPicksDb = firebase.database().ref().child("randomPicks");
     var activePlayerDb = firebase.database().ref().child("Players");
     var winConditionDb = firebase.database().ref().child("winCondition");
+    var KickoffDb = firebase.database().ref().child("Kickoff");
     var database = firebase.database();
     
     
@@ -110,7 +111,8 @@ $(document).ready(function () {
     $("#round-kickoff").on("click", function () {
         event.preventDefault();
         alreadyCalledArray = [];
-        newRound();
+        KickoffDb.child("ready2Play").set(true);
+        setTimeout(newRound,27000);
     });
 
     // Clears numbers database when button is pushed
@@ -182,14 +184,16 @@ $(document).ready(function () {
         livePlayers = parseInt(snap.numChildren()-1);
         $("#connected-viewers").text(livePlayers);
 
-        // Game starts automatically when there are three live players or more
+        // Kickoff button is enabled when there are three live players or more
         if (livePlayers > 2) {
             console.log("game on!");
-            setTimeout(newRound,28000);
+            $("#round-kickoff").prop("disabled", false);
+        } else {
+            $("#round-kickoff").prop("disabled", true);
         };
     });
 
-    // STARTUP PROCESS /////////////////////////////////////////////////////////////////////////////////////
+    // STARTUP PROCESS (if any ) ///////////////////////////////////////////////////////////////////////////
 	// /////////////////////////////////////////////////////////////////////////////////////////////////////
 
 });
