@@ -17,6 +17,7 @@
     <!-- My CSS -->
     <link rel="stylesheet" href="assets/css/style.css">
 
+    <link rel='icon' href='assets/images-sounds/favicon.ico' type='image/x-icon'/>
 
     <title>Bingo Bongo!</title>
 
@@ -28,12 +29,16 @@
         <!-- This is the navigation bar with user login html -->
 
         <nav class="navbar bg-info mb-5">
-            <h1>Bingo Bongo!</h1>
+            <span class="navbar-brand" style="font-size: 40px;">
+                <img src="assets/images-sounds/bongo.png" width="50" height="50" class="d-inline-block align-bottom"
+                    alt="">
+                Bingo Bongo!
+            </span>
             <h5>Live Players <span class="badge badge-secondary" id="connected-viewers" data-step="2" data-intro="Game starts when there are at least three players connected"></span></h5>
             <div id="login-fields">
                 <form class="form-inline">
                     <input class="form-control mr-sm-2" placeholder="Enter user name" id="new-user-entry">
-                    <button class="btn btn-success my-2 my-sm-0" id="start-playing" data step="1" data-intro="Enter your user name to start playing!">Sign
+                    <button class="btn btn-success my-2 my-sm-0" id="sign-in" data step="1" data-intro="Enter your user name to start playing!">Sign
                         in</button>
                 </form>
             </div>
@@ -133,6 +138,7 @@
         <footer class="pt-4 my-md-5 pt-md-5 border-top">
             <div class="row">
                 <div class="col-12 col-md-1">
+                    <img class="mb-2" src="assets/images-sounds/bongo.png" alt="" width="50" height="50">
                     <small class="d-block mb-3 text-muted">&copy; 2019</small>
                 </div>
                 <div class="col-6 col-md">
