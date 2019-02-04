@@ -17,7 +17,7 @@ $(document).ready(function () {
 	var activePlayerDb = firebase.database().ref().child("Players");
 	var winConditionDb = firebase.database().ref().child("winCondition");
 	var database = firebase.database();
-	var queryPlayers = firebase.database().ref('Players').orderByChild('score');
+	var queryPlayers = firebase.database().ref('Players').orderByChild('score').limitToLast(5);
 
 	// Variables for tracking number of simultaneous connections to the database (condition of 3 to play)
 	// --------------------------------------------------------------------------------------------------
@@ -39,6 +39,10 @@ $(document).ready(function () {
 	var currentPlayer;
 	var logged = false;
 	var calledArray = [];
+	var countdown = 21;
+	var countdownInt;
+	var nameOfWinner;
+	var livePlayers;
 
 	// Define winning combinations to check against for Good Bingo. Entries with 4 numbers have a "free" space
 	var winners = [
@@ -98,6 +102,9 @@ $(document).ready(function () {
 		for (var i = 1; i < drawnNums.length; i++) {
 			drawnNums[i] = false;
 		};
+		// winConditionDb.child("roundWinner").set(false);
+		// winConditionDb.child("nameOfWinner").set("Nobody");
+
 		newCard();
 	};
 
@@ -113,6 +120,72 @@ $(document).ready(function () {
 		$("#bingo-button").append(newButton);
 	};
 
+	// Display countdown to start round
+	function displayCountdown() {
+		$("#countdown-spinner-header").text("Countdown to Round");
+		$("#countdown-spinner").empty();
+		$("#bingo-button").empty();
+		var timerDOM = $("<h2>");
+		timerDOM.addClass("text-light mt-5");
+		timerDOM.text(countdown);
+		$("#countdown-spinner").append(timerDOM);
+	};
+
+	function countdownToRound() {
+		countdown--;
+		if (countdown <= 0) {
+			clearInterval(countdownInt);
+			displayNumberCalls();
+		} else {
+			displayCountdown();
+		};
+	};
+
+	// Display Numbers Called
+	function displayNumberCalls() {
+		$("#info-panel-color").removeClass("card bg-warning ml-1");
+		$("#info-panel-color").addClass("card bg-info ml-1");
+		$("#countdown-spinner-header").text("New Ball");
+		$("#countdown-spinner").empty();
+		var spinnerDOM = $("<div>");
+		spinnerDOM.addClass("spinner-border text-light text-center mt-5");
+		spinnerDOM.attr("style", "width: 6rem; height: 6rem;");
+		var currentNumberDOM = $("<h2>");
+		currentNumberDOM.attr("id","current-draw");
+		spinnerDOM.append(currentNumberDOM);
+		$("#countdown-spinner").append(spinnerDOM);
+		bingoButton();
+	};
+
+	// Announce Winner for round
+	function announceWinner() {
+		$("#info-panel-color").removeClass("card bg-info ml-1");
+		$("#info-panel-color").addClass("card bg-success ml-1");
+		$("#countdown-spinner-header").text("Round Winner!");
+		$("#countdown-spinner").empty();
+
+		winConditionDb.child("nameOfWinner").once("value", function (snap) {
+			nameOfWinner = snap.val();
+		});
+
+		var winnerDOM = $("<h2>");
+		winnerDOM.addClass("text-light mt-5");
+		winnerDOM.text("The winner is: " + nameOfWinner);
+		$("#countdown-spinner").append(winnerDOM);
+	};
+
+	// No Bingo Announcement
+	function noBingo() {
+		$("#info-panel-color").removeClass("card bg-info ml-1");
+		$("#info-panel-color").addClass("card bg-warning ml-1");
+		$("#countdown-spinner-header").text("Sorry!");
+		$("#countdown-spinner").empty();
+		var noBingoDOM = $("<h2>");
+		noBingoDOM.addClass("text-light mt-5");
+		noBingoDOM.text("No BINGO...");
+		$("#countdown-spinner").append(noBingoDOM);
+	};
+	
 	// Calls BINGO! button function
 	bingoButton();
 
@@ -120,20 +193,17 @@ $(document).ready(function () {
 	introJs().start();
 
 	// Tracks activity in Sign In button
-	$("#start-playing").on("click", function (event) {
+	$(document).on("click", "#start-playing", function (event) {
 		event.preventDefault();
 
 		// Grabs user input
 		currentPlayer = $("#new-user-entry").val().trim();
 
 		// Uploads player entry data to the database
-		activePlayerDb.child(currentPlayer).set({ "score": 0, "AvatarURL": "" });
+		activePlayerDb.child(currentPlayer).set({ "score": 0, "AvatarURL": "", "ready2Play": "N" });
 
 		// Flags that user is logged in
 		logged = true;
-
-		// Alert - this will be a modal
-		// CODE HERE
 
 		// Clears login space on screen and welcomes new player
 		$("#login-fields").empty();
@@ -144,8 +214,9 @@ $(document).ready(function () {
 	});
 
 	// Player calls BINGO!
-	$("#player-calls-Bingo").on("click", function () {
+	$(document).on("click", "#player-calls-Bingo", function () {
 		event.preventDefault();
+		console.log("Bingo called!")
 
 		if (logged) {
 			// Bingo yell
@@ -177,7 +248,7 @@ $(document).ready(function () {
 			if (roundWins !== 0) {
 				roundWinner();
 			} else {
-				console.log("Sorry not a right bingo call");
+				noBingo();
 			};
 
 			function roundWinner() {
@@ -193,9 +264,6 @@ $(document).ready(function () {
 
 				winConditionDb.child("roundWinner").set(true);
 				winConditionDb.child("nameOfWinner").set(currentPlayer);
-
-				// informs other players that there is a winner for the round
-				// CODE HERE
 
 				// clears admin database of drawn numbers to reset game
 				randomPicksDb.remove();
@@ -261,16 +329,6 @@ $(document).ready(function () {
 		});
 	});
 
-	// Stops round and informs of new Winner!
-	winConditionDb.on("child_changed", function (snap) {
-		isThereAWinner = snap.val();
-		if (isThereAWinner == true || isThereAWinner !== "Nobody") {
-			// removes Bingo button from game
-			// Informs players there is a winner and mentions name + timeout of 10 seconds
-			// generates new card
-		};
-	});
-
 	// When the client's connection state changes...
 	connectedRef.on("value", function (snap) {
 
@@ -289,7 +347,31 @@ $(document).ready(function () {
 
 		// Display the viewer count in the html.
 		// The number of online users is the number of children in the connections list.
-		$("#connected-viewers").text(snap.numChildren() - 1);
+		livePlayers = parseInt(snap.numChildren()-1);
+		$("#connected-viewers").text(livePlayers);
+
+		// Countdown starts automatically when there are three live players or more
+		if (livePlayers > 2) {
+			countdownInt = setInterval(countdownToRound,1000);
+		};
 	});
+
+	// Trigger winner announcement process
+	winConditionDb.on("child_changed", function(snap) {
+        var isThereAWinner = snap.val();
+        if (isThereAWinner == true || isThereAWinner !== "Nobody") {
+			
+			// removes Bingo button for all players
+			$("#bingo-button").empty();
+
+			// announces winner
+			announceWinner();
+
+			// kicks off another round
+			// if (livePlayers > 2) {
+			// 	countdownInt = setInterval(countdownToRound,10000);
+			// };
+        };
+    });
 
 });

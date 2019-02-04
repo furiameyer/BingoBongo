@@ -43,8 +43,8 @@ $(document).ready(function () {
     var livePlayers = 0;
 
     function newRound() {
-        winConditionDb.child("roundWinner").set(false);
-        winConditionDb.child("nameOfWinner").set("Nobody");
+        // winConditionDb.child("roundWinner").set(false);
+        // winConditionDb.child("nameOfWinner").set("Nobody");
         newNumber();
         timer = setInterval(newNumber,500);
 	};
@@ -144,8 +144,8 @@ $(document).ready(function () {
         };
     });
 
-    // THIS IS CODE THAT ALLOWS US TO TRACK NUMBER OF CONNECTIONS
-    // ----------------------------------------------------------
+    // Track number of live connections to database
+    // --------------------------------------------
     
     // connectionsRef references a specific location in our database.
     // All of our connections will be stored in this directory.
@@ -180,7 +180,7 @@ $(document).ready(function () {
     // Game starts automatically when there are three live players or more
     if (livePlayers > 2) {
         console.log("game on!");
-        resetRound();
+        setTimeout(resetRound,30000);
     };
     });
 });
