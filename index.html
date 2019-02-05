@@ -69,13 +69,15 @@
                 </div>
 
                 <div id="bingo-button"></div>
-
+                
             </div>
+
+            
 
             <!-- This is the Bingo Card html -->
 
             <div class="col-lg-4 col-md-6 col-12 mb-3">
-                <table id="bingotable">
+                <table id="bingotable" style="background-size: contain;">
                     <tr>
                         <th class="purple">B</th>
                         <th class="purple">I</th>
@@ -134,7 +136,11 @@
                 </div>
             </div>
         </div>
-
+        <div class="col-lg-2 col-6" style="width: 430px!important;margin: auto;max-width: 30pc;">
+                <button type="button" class="btn btn-warning" id="dogButton" style=" float: left;margin-right: 20px;">Give me a Dog Board!</button>
+            
+                <button type="button" class="btn btn-warning" id="catButton">Give me a Cat Board!</button>
+        </div>
         <footer class="pt-4 my-md-5 pt-md-5 border-top">
             <div class="row">
                 <div class="col-12 col-md-1">
@@ -161,6 +167,7 @@
             </div>
         </footer>
     </div>
+
 
     <!-- fireBase first, jQuery , Intro.js, then my JS -->
     <script src="https://www.gstatic.com/firebasejs/5.8.0/firebase.js"></script>

@@ -15,7 +15,13 @@ body {
     width: 350px;
     height: 350px;
     border-collapse: collapse;
-    background: white;
+    background-color: white;
+    color: white;
+    text-shadow:
+        -1px -1px 0 #000,
+        1px -1px 0 #000,
+        -1px 1px 0 #000,
+        1px 1px 0 #000;
 }
 th, td {
     margin: 0 auto;
@@ -29,5 +35,5 @@ th, td {
 }
 
 .clicked {
-    background: #00bfff;
+    background: rgb(0, 191, 255, 0.75);
 }

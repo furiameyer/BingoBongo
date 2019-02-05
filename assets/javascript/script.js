@@ -110,6 +110,34 @@ $(document).ready(function () {
 		return Math.floor(Math.random() * 75);
 	};
 
+	//API Calls for Dog CEO & Cat API
+
+	// Dog CEO API call
+	function callDog () {
+		var queryURL = "https://dog.ceo/api/breeds/image/random";
+	
+    	$.ajax({
+    		url: queryURL,
+      		method: "GET"
+    	}).then(function(response) {
+            var dogPicture = response.message;
+            $("#bingotable").css("background-image", "url("+dogPicture+")");
+    	});
+	};
+	// Cat API call
+	function callCat () {
+		var queryURL = "https://api.thecatapi.com/v1/images/search?mime_types=jpg,png&size=large";
+		
+    	$.ajax({
+      		url: queryURL,
+      		method: "GET"
+    	}).then(function(response) {
+        	var catPicture = response[0].url;
+        	$("#bingotable").css("background-image", "url("+catPicture+")");
+        
+    });
+  };
+
 	// Generate BINGO! button
 	function bingoButton() {
 		var newButton = $("<a>");
@@ -211,6 +239,15 @@ $(document).ready(function () {
 		$("#login-fields").append(welcome);
 		setTimeout(newCard, 1000);
 	});
+
+	// Dog & Cat Buttons click listeners
+	$("#dogButton").click(function(){
+		callDog();
+	})
+
+	$("#catButton").click(function(){
+		callCat();
+	})
 
 	// Player calls BINGO!
 	$(document).on("click", "#player-calls-Bingo", function () {
