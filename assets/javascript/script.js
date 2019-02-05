@@ -176,7 +176,7 @@ $(document).ready(function () {
 		countdown--;
 		if (countdown <= 0) {
 			clearInterval(countdownInt);
-			displayNumberCalls();
+			setTimeout(displayNumberCalls,500);
 		} else {
 			displayCountdown();
 		};
@@ -227,7 +227,6 @@ $(document).ready(function () {
 		countdown=11;
 		winConditionDb.child("roundWinner").set(false);
 		winConditionDb.child("nameOfWinner").set("Nobody");
-		newCard();
 		launchSpinner();
 	};
 
@@ -253,7 +252,6 @@ $(document).ready(function () {
 		welcome.text("Welcome to Bingo Bongo, " + currentPlayer + "!");
 		$("#login-fields").append(welcome);
 		$("#bingo-button").empty();
-		setTimeout(newCard, 1000);
 	});
 
 	// Dog & Cat Buttons click listeners
@@ -400,6 +398,7 @@ $(document).ready(function () {
 
 		// Countdown starts automatically when there are three live players or more
 		if (order2Kickoff == true) {
+			newCard();
 			countdownInt = setInterval(countdownToRound, 1000);
 		};
 	});

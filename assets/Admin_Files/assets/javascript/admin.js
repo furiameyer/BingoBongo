@@ -106,9 +106,11 @@ $(document).ready(function () {
     };
 
     // toggle ready to play
-    function enabled2Play (binary) {
+    function enabled2Play(binary) {
         KickoffDb.child("ready2Play").set(binary);
     };
+
+    $("#round-kickoff").prop("disabled", true);
 
     // BUTTON EVENT TRACKERS ///////////////////////////////////////////////////////////////////////////////
     // /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -118,8 +120,8 @@ $(document).ready(function () {
         event.preventDefault();
         alreadyCalledArray = [];
         enabled2Play(true);
-        setTimeout(enabled2Play(false),5000);
-        setTimeout(newRound, 12000);
+        setTimeout(enabled2Play(false), 5000);
+        setTimeout(newRound, 14000);
     });
 
     // Clears numbers database when button is pushed
@@ -130,7 +132,7 @@ $(document).ready(function () {
     });
 
     // Clears players database when button is pushed
-    $("#clear-players-database").on("click", function () {
+    $("#active-players").on("click", function () {
         event.preventDefault();
         activePlayerDb.remove();
     });
@@ -156,7 +158,7 @@ $(document).ready(function () {
 
     // player removed
     activePlayerDb.on("child_removed", function () {
-        playerArray=[];
+        playerArray = [];
         $("#clear-players-database").empty();
     });
 
@@ -166,7 +168,7 @@ $(document).ready(function () {
             $("#numbers-drawn").empty();
             $("#round-kickoff").text("Wait...");
             clearInterval(callTimer);
-            setTimeout(resetRound,13000);
+            setTimeout(resetRound, 13000);
         };
     });
 
