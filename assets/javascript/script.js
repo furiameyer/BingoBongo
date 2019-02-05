@@ -38,14 +38,14 @@ $(document).ready(function () {
 	// Initialize global variables
 	var drawnNums = new Array(76);
 	var scoreMultipler = [10, 30, 50, 70, 100];
-	var roundWins;
+	var roundWins = 0;
 	var currentPlayer;
 	var logged = false;
 	var calledArray = [];
-	var countdown = 21;
+	var countdown = 11;
 	var countdownInt;
 	var nameOfWinner;
-	var livePlayers=0;
+	var livePlayers;
 
 	// Define winning combinations to check against for Good Bingo. Entries with 4 numbers have a "free" space
 	var winners = [
@@ -77,10 +77,10 @@ $(document).ready(function () {
 			drawnNums[i] = false;
 		};
 
-		// Start loop to fill in each square on Bingo card
+		// Start loop to fill in each square on Bingo card and restore to white background
 		for (var i = 0; i < 24; i++) {
 			setSquare(i);
-			// $("#square"+ i).css("background-color", "#FFFFFF");
+			$("#square"+ i).css("background-color", "transparent");
 		};
 
 		// Toggle Background Colors on user click
@@ -124,6 +124,7 @@ $(document).ready(function () {
 			$("#bingotable").css("background-image", "url(" + dogPicture + ")");
 		});
 	};
+
 	// Cat API call
 	function callCat() {
 		var queryURL = "https://api.thecatapi.com/v1/images/search?mime_types=jpg,png&size=large";
@@ -205,7 +206,6 @@ $(document).ready(function () {
 		});
 
 		var winnerDOM = $("<h2>");
-		winnerDOM.addClass("text-light mt-5");
 		winnerDOM.text(nameOfWinner);
 		$("#countdown-spinner").append(winnerDOM);
 	};
@@ -218,6 +218,17 @@ $(document).ready(function () {
 		noBingoDOM.addClass("text-light mt-5");
 		noBingoDOM.text("No BINGO");
 		$("#countdown-spinner").append(noBingoDOM);
+	};
+
+	// Generate New Round
+	function newRound() {
+		roundWins=0;
+		calledArray=[];
+		countdown=11;
+		winConditionDb.child("roundWinner").set(false);
+		winConditionDb.child("nameOfWinner").set("Nobody");
+		newCard();
+		launchSpinner();
 	};
 
 	// BUTTON EVENT TRACKERS ///////////////////////////////////////////////////////////////////////////////
@@ -257,7 +268,6 @@ $(document).ready(function () {
 	// Player calls BINGO!
 	$(document).on("click", "#player-calls-Bingo", function () {
 		event.preventDefault();
-		console.log("Bingo called!")
 
 		if (logged) {
 			// Bingo yell
@@ -266,8 +276,6 @@ $(document).ready(function () {
 
 			// removes Bingo button for remainder of round
 			$("#bingo-button").empty();
-
-			roundWins = 0;
 
 			// confirms that there is a condition of winning
 			for (var i = 0; i < winners.length; i++) { // i represents each winning condition
@@ -282,20 +290,20 @@ $(document).ready(function () {
 				};
 				if (allcalled == true) {
 					roundWins++;
-					console.log(roundWins + " good Bingo(s)!");
 				};
 			};
 
+			// run roundWinner if there is a condition of winning
 			if (roundWins !== 0) {
 				roundWinner();
 			} else {
 				noBingo();
 			};
 
+			// adds to score of current player and updates database
 			function roundWinner() {
-				// adds to score of current player and updates database
-
-				currentPlayerinDb = activePlayerDb.child(currentPlayer).child("score");
+				
+				var currentPlayerinDb = activePlayerDb.child(currentPlayer).child("score");
 
 				currentPlayerinDb.once("value", function (snap) {
 					currentPlayerScore = parseInt(snap.val());
@@ -324,11 +332,9 @@ $(document).ready(function () {
 		// adds number to calledArray
 		calledArray.push(numberDrawn);
 
-		// plays sound
-		var newBall = new Audio('./assets/images-sounds/newball.m4a');
-		newBall.addEventListener('loadeddata', function () {
-			newBall.play;
-		});
+		// plays sound (disabled for demo)
+		// var newBall = new Audio('./assets/images-sounds/newball.m4a');
+		// 	newBall.play();
 
 		// check for match in current player bingo card
 		for (var i = 0; i < 24; i++) {
@@ -410,8 +416,7 @@ $(document).ready(function () {
 			announceWinner();
 
 			// kicks off another round
-			// if (livePlayers > 2) {
-			// 	countdownInt = setInterval(countdownToRound,10000);
+			setTimeout(newRound,10000);
 			// };
 		};
 	});
@@ -422,6 +427,6 @@ $(document).ready(function () {
 	// Calls startup screen functions
 	bingoButton();
 	launchSpinner();
-	introJs().start();
+	introJs().start(); // Onboarding guide
 
 });
