@@ -17,7 +17,7 @@
     <!-- My CSS -->
     <link rel="stylesheet" href="assets/css/style.css">
 
-    <link rel='icon' href='assets/images-sounds/favicon.ico' type='image/x-icon'/>
+    <link rel='icon' href='assets/images-sounds/favicon.ico' type='image/x-icon' />
 
     <title>Bingo Bongo!</title>
 
@@ -56,23 +56,20 @@
                 </div>
             </div>
 
-            <!-- This is the countdown to start html -->
+            <!-- This is the game progress html -->
 
             <div class="col-lg-2 col-6">
-                <div id="info-panel-color" class="card bg-warning ml-1" data-step="3" data-intro="Once the game starts, this section deisplays the latest number called. Numbers are called every 7 seconds!">
+                <div id="info-panel-color" class="card bg-info ml-1" data-step="3" data-intro="Once the game starts, this section deisplays the latest number called. Numbers are called every 7 seconds!">
                     <div class="card-body">
-                        <h5 id="countdown-spinner-header" class="card-title text-center text-light">Player Requirement</h5>
-                        <div id="countdown-spinner" class="d-flex justify-content-center">
-                            <h2 class="text-light mt-5" style="font-size: 15px;">3 live players needed to start...</h2>
-                        </div>
+                        <h5 id="countdown-spinner-header" class="card-title text-center text-light"></h5>
+                        <div id="countdown-spinner" class="d-flex justify-content-center"></div>
                     </div>
                 </div>
 
                 <div id="bingo-button"></div>
-                
+
             </div>
 
-            
 
             <!-- This is the Bingo Card html -->
 
@@ -124,6 +121,7 @@
                 </table>
             </div>
 
+
             <!-- Calling out the Chatbox API -->
 
             <div class="col-lg-2 offset-lg-1 offset-xl-0 col-xl-3 col-md-6 col-12">
@@ -136,36 +134,43 @@
                 </div>
             </div>
         </div>
-        <div class="col-lg-2 col-6" style="width: 430px!important;margin: auto;max-width: 30pc;">
-                <button type="button" class="btn btn-warning" id="dogButton" style=" float: left;margin-right: 20px;">Give me a Dog Board!</button>
-            
-                <button type="button" class="btn btn-warning" id="catButton">Give me a Cat Board!</button>
+
+        <!-- Cat board and Dog board buttons -->
+
+        <div class="col-lg-2 col-6 mt-2 mb-2" style="width: 430px!important;margin: auto;max-width: 30pc;">
+            <button type="button" class="btn btn-warning" id="dogButton" style=" float: left;margin-right: 20px;">Give
+                me a Dog Board!</button>
+            <button type="button" class="btn btn-warning" id="catButton">Give me a Cat Board!</button>
         </div>
-        <footer class="pt-4 my-md-5 pt-md-5 border-top">
-            <div class="row">
-                <div class="col-12 col-md-1">
-                    <img class="mb-2" src="assets/images-sounds/bongo.png" alt="" width="50" height="50">
-                    <small class="d-block mb-3 text-muted">&copy; 2019</small>
-                </div>
-                <div class="col-6 col-md">
-                    <h5>Da Rules!(Tips and Tricks)</h5>
-                    <ul class="list-unstyled text-small">
-                        <li class="text-muted">Need 3 live connections to play</li>
-                        <li class="text-muted">Sign in to display Bingo board</li>
-                        <li class="text-muted">Don't press BINGO! unless you mean it!</li>
-                        <li class="text-muted">The more rows you collect, the higher the score</li>
-                    </ul>
-                </div>
-                <div class="col-6 col-md">
-                    <h5>Meet the Developers</h5>
-                    <ul class="list-unstyled text-small">
-                        <li><a class="text-muted" href="https://github.com/furiameyer" target="_blank">Ariel</a></li>
-                        <li><a class="text-muted" href="https://github.com/ahs012" target="_blank">Albert</a></li>
-                        <li><a class="text-muted" href="https://vicklawl.github.io/Resumehtml/" target="_blank">Victor</a></li>
-                    </ul>
-                </div>
+    </div>
+
+    <!-- Footer -->
+
+    <footer class="pt-4 my-md-5 pt-md-5 border-top">
+        <div class="row">
+            <div class="col-12 col-md-1">
+                <img class="mb-2" src="assets/images-sounds/bongo.png" alt="" width="50" height="50">
+                <small class="d-block mb-3 text-muted">&copy; 2019</small>
             </div>
-        </footer>
+            <div class="col-6 col-md">
+                <h5>Da Rules!(Tips and Tricks)</h5>
+                <ul class="list-unstyled text-small">
+                    <li class="text-muted">Need 3 live connections to play</li>
+                    <li class="text-muted">Sign in to display Bingo board</li>
+                    <li class="text-muted">Don't press BINGO! unless you mean it!</li>
+                    <li class="text-muted">The more rows you collect, the higher the score</li>
+                </ul>
+            </div>
+            <div class="col-6 col-md">
+                <h5>Meet the Developers</h5>
+                <ul class="list-unstyled text-small">
+                    <li><a class="text-muted" href="https://github.com/furiameyer" target="_blank">Ariel</a></li>
+                    <li><a class="text-muted" href="https://github.com/ahs012" target="_blank">Albert</a></li>
+                    <li><a class="text-muted" href="https://vicklawl.github.io/Resumehtml/" target="_blank">Victor</a></li>
+                </ul>
+            </div>
+        </div>
+    </footer>
     </div>
 
 
