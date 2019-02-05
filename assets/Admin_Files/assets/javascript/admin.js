@@ -3,26 +3,26 @@ $(document).ready(function () {
 
     // VARIABLES ///////////////////////////////////////////////////////////////////////////////////////////
     // /////////////////////////////////////////////////////////////////////////////////////////////////////
-    
-	// Initialize Firebase
-	var config = {
-		apiKey: "AIzaSyD_-3-lBIv3PPo6JqTdd_0ujlntX3tmpOo",
-		authDomain: "bingobongo.firebaseapp.com",
-		databaseURL: "https://bingobongo.firebaseio.com",
-		projectId: "bingobongo",
-		storageBucket: "bingobongo.appspot.com",
-		messagingSenderId: "510658729020"
-	};
-	firebase.initializeApp(config);
 
-	// Create a variable to reference the database
+    // Initialize Firebase
+    var config = {
+        apiKey: "AIzaSyD_-3-lBIv3PPo6JqTdd_0ujlntX3tmpOo",
+        authDomain: "bingobongo.firebaseapp.com",
+        databaseURL: "https://bingobongo.firebaseio.com",
+        projectId: "bingobongo",
+        storageBucket: "bingobongo.appspot.com",
+        messagingSenderId: "510658729020"
+    };
+    firebase.initializeApp(config);
+
+    // Create a variable to reference the database
     var randomPicksDb = firebase.database().ref().child("randomPicks");
     var activePlayerDb = firebase.database().ref().child("Players");
     var winConditionDb = firebase.database().ref().child("winCondition");
     var KickoffDb = firebase.database().ref().child("Kickoff");
     var database = firebase.database();
-    
-    
+
+
     // PLACEHOLDER CODE in order to delete players
     // ----------------------------------------------------------------------------
     // var playerDb2 = firebase.database().ref("Players");
@@ -48,8 +48,8 @@ $(document).ready(function () {
 
 
     // Variables for tracking number of simultaneous connections to the database (condition of 3 to play)
-	// --------------------------------------------------------------------------------------------------
-    
+    // --------------------------------------------------------------------------------------------------
+
     // connectionsRef references a specific location in our database.
     // All of our connections will be stored in this directory.
     var connectionsRef = database.ref("/Connections");
@@ -61,58 +61,64 @@ $(document).ready(function () {
 
     // FUNCTIONS ///////////////////////////////////////////////////////////////////////////////////////////
     // /////////////////////////////////////////////////////////////////////////////////////////////////////
-    
+
     function newRound() {
         resetRound();
         newCall();
-        callTimer = setInterval(newCall,500);
-	};
-    
+        callTimer = setInterval(newCall, 1000);
+    };
+
     // Generate a new, unrepeated number and save it to the database
-    function newCall () {
-        
-            var newNum;
-            
-            do {
-                newNum = Math.floor(Math.random() * 135) + 1;
-            }
-            while (callNumbersBag[newNum]);
+    function newCall() {
 
-            // "true" flag ensures the number is not repeated again
-            callNumbersBag[newNum] = true;
-            
-            // Adds new number to Database
-            randomPicksDb.child(`Counter_ ${callsCounter}`).set(newNum);
-            
-            // Keeps track of the number of calls made
-            callsCounter++
+        var newNum;
 
-            // Stop drawing new numbers at 135 to avoid an error in code
-            if(callsCounter==135) {
-                clearInterval(callTimer);
-            };
-	};
+        do {
+            newNum = Math.floor(Math.random() * 135) + 1;
+        }
+        while (callNumbersBag[newNum]);
+
+        // "true" flag ensures the number is not repeated again
+        callNumbersBag[newNum] = true;
+
+        // Adds new number to Database
+        randomPicksDb.child(`Counter_ ${callsCounter}`).set(newNum);
+
+        // Keeps track of the number of calls made
+        callsCounter++
+
+        // Stop drawing new numbers at 135 to avoid an error in code
+        if (callsCounter == 135) {
+            clearInterval(callTimer);
+        };
+    };
 
     // Reset round
     function resetRound() {
-		for(var i=1; i<callNumbersBag.length; i++) {
-			callNumbersBag[i] = false;
-		};
+        for (var i = 1; i < callNumbersBag.length; i++) {
+            callNumbersBag[i] = false;
+        };
         randomPicksDb.remove();
         clearInterval(callTimer);
         alreadyCalledArray = [];
-        callsCounter=0;
-	};
+        callsCounter = 0;
+    };
+
+    // toggle ready to play
+    function enabled2Play (binary) {
+        KickoffDb.child("ready2Play").set(binary);
+    };
 
     // BUTTON EVENT TRACKERS ///////////////////////////////////////////////////////////////////////////////
     // /////////////////////////////////////////////////////////////////////////////////////////////////////
-    
+
     // Kicks off round when kick-off button is pushed
     $("#round-kickoff").on("click", function () {
         event.preventDefault();
         alreadyCalledArray = [];
-        KickoffDb.child("ready2Play").set(true);
-        setTimeout(newRound,27000);
+        enabled2Play(true);
+        setTimeout(enabled2Play(false),5000);
+        setTimeout(newRound, 20000);
     });
 
     // Clears numbers database when button is pushed
@@ -122,7 +128,7 @@ $(document).ready(function () {
         randomPicksDb.remove();
         clearInterval(callTimer);
         alreadyCalledArray = [];
-        callsCounter=0;
+        callsCounter = 0;
     });
 
     // Clears players database when button is pushed
@@ -130,41 +136,41 @@ $(document).ready(function () {
         event.preventDefault();
         activePlayerDb.remove();
     });
-    
+
     // FIREBASE EVENT TRACKERS /////////////////////////////////////////////////////////////////////////////
     // /////////////////////////////////////////////////////////////////////////////////////////////////////
-    
-    randomPicksDb.on("child_added", function(snap) {
+
+    randomPicksDb.on("child_added", function (snap) {
         var numberDrawn = snap.val();
         alreadyCalledArray.push(numberDrawn);
         $("#numbers-drawn").empty();
         $("#numbers-drawn").text(alreadyCalledArray.join("  .  "));
     });
 
-    activePlayerDb.on("child_added", function(snap) {
+    activePlayerDb.on("child_added", function (snap) {
         var newPlayer = snap.key;
         playerArray.push(newPlayer);
         $("#active-players").empty();
         $("#active-players").text(playerArray.join("  .  "));
     });
 
-    activePlayerDb.on("child_removed", function() {
+    activePlayerDb.on("child_removed", function () {
         $("#active-players").empty();
         playerArray = [];
     });
 
-    winConditionDb.on("child_changed", function(snap) {
+    winConditionDb.on("child_changed", function (snap) {
         isThereAWinner = snap.val();
         if (isThereAWinner == true || isThereAWinner !== "Nobody") {
             clearInterval(callTimer);
             randomPicksDb.remove();
-            callsCounter=0;
+            callsCounter = 0;
             $("#numbers-drawn").empty();
         };
     });
 
     // Keep track of number of live connections and trigger game when number of connections reaches 3
-    connectedRef.on("value", function(snap) {
+    connectedRef.on("value", function (snap) {
 
         // If they are connected..
         if (snap.val()) {
@@ -177,11 +183,11 @@ $(document).ready(function () {
     });
 
     // When first loaded or when the connections list changes...
-    connectionsRef.on("value", function(snap) {
+    connectionsRef.on("value", function (snap) {
 
         // Display the viewer count in the html.
         // The number of online users is the number of children in the connections list.
-        livePlayers = parseInt(snap.numChildren()-1);
+        livePlayers = parseInt(snap.numChildren() - 1);
         $("#connected-viewers").text(livePlayers);
 
         // Kickoff button is enabled when there are three live players or more
@@ -194,6 +200,6 @@ $(document).ready(function () {
     });
 
     // STARTUP PROCESS (if any ) ///////////////////////////////////////////////////////////////////////////
-	// /////////////////////////////////////////////////////////////////////////////////////////////////////
+    // /////////////////////////////////////////////////////////////////////////////////////////////////////
 
 });

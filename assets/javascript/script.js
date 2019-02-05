@@ -45,7 +45,7 @@ $(document).ready(function () {
 	var countdown = 21;
 	var countdownInt;
 	var nameOfWinner;
-	var livePlayers;
+	var livePlayers=0;
 
 	// Define winning combinations to check against for Good Bingo. Entries with 4 numbers have a "free" space
 	var winners = [
@@ -113,30 +113,30 @@ $(document).ready(function () {
 	//API Calls for Dog CEO & Cat API
 
 	// Dog CEO API call
-	function callDog () {
+	function callDog() {
 		var queryURL = "https://dog.ceo/api/breeds/image/random";
-	
-    	$.ajax({
-    		url: queryURL,
-      		method: "GET"
-    	}).then(function(response) {
-            var dogPicture = response.message;
-            $("#bingotable").css("background-image", "url("+dogPicture+")");
-    	});
+
+		$.ajax({
+			url: queryURL,
+			method: "GET"
+		}).then(function (response) {
+			var dogPicture = response.message;
+			$("#bingotable").css("background-image", "url(" + dogPicture + ")");
+		});
 	};
 	// Cat API call
-	function callCat () {
+	function callCat() {
 		var queryURL = "https://api.thecatapi.com/v1/images/search?mime_types=jpg,png&size=large";
-		
-    	$.ajax({
-      		url: queryURL,
-      		method: "GET"
-    	}).then(function(response) {
-        	var catPicture = response[0].url;
-        	$("#bingotable").css("background-image", "url("+catPicture+")");
-        
-    });
-  };
+
+		$.ajax({
+			url: queryURL,
+			method: "GET"
+		}).then(function (response) {
+			var catPicture = response[0].url;
+			$("#bingotable").css("background-image", "url(" + catPicture + ")");
+
+		});
+	};
 
 	// Generate BINGO! button
 	function bingoButton() {
@@ -148,6 +148,16 @@ $(document).ready(function () {
 		newButton.addClass("btn btn-danger offset-3 offset-md-6 mt-2 mt-lg-4 mb-2 mb-lg-0 w-50");
 		newButton.text("BINGO!")
 		$("#bingo-button").append(newButton);
+	};
+
+	// Display standby spinner
+	function launchSpinner() {
+		$("#countdown-spinner-header").text("Standby...");
+		$("#countdown-spinner").empty();
+		var spinnerDOM = $("<div>");
+		spinnerDOM.addClass("spinner-grow text-light mt-5");
+		spinnerDOM.attr("style", "width: 6rem; height: 6rem;");
+		$("#countdown-spinner").append(spinnerDOM);
 	};
 
 	// Display countdown to start round
@@ -173,8 +183,6 @@ $(document).ready(function () {
 
 	// Display Numbers Called
 	function displayNumberCalls() {
-		$("#info-panel-color").removeClass("card bg-warning ml-1");
-		$("#info-panel-color").addClass("card bg-info ml-1");
 		$("#countdown-spinner-header").text("New Ball");
 		$("#countdown-spinner").empty();
 		var spinnerDOM = $("<div>");
@@ -189,8 +197,6 @@ $(document).ready(function () {
 
 	// Announce Winner for round
 	function announceWinner() {
-		$("#info-panel-color").removeClass("card bg-info ml-1");
-		$("#info-panel-color").addClass("card bg-success ml-1");
 		$("#countdown-spinner-header").text("Round Winner!");
 		$("#countdown-spinner").empty();
 
@@ -206,13 +212,11 @@ $(document).ready(function () {
 
 	// No Bingo Announcement
 	function noBingo() {
-		$("#info-panel-color").removeClass("card bg-info ml-1");
-		$("#info-panel-color").addClass("card bg-warning ml-1");
 		$("#countdown-spinner-header").text("Sorry!");
 		$("#countdown-spinner").empty();
 		var noBingoDOM = $("<h2>");
 		noBingoDOM.addClass("text-light mt-5");
-		noBingoDOM.text("No BINGO...");
+		noBingoDOM.text("No BINGO");
 		$("#countdown-spinner").append(noBingoDOM);
 	};
 
@@ -237,15 +241,16 @@ $(document).ready(function () {
 		var welcome = $("<h3>");
 		welcome.text("Welcome to Bingo Bongo, " + currentPlayer + "!");
 		$("#login-fields").append(welcome);
+		$("#bingo-button").empty();
 		setTimeout(newCard, 1000);
 	});
 
 	// Dog & Cat Buttons click listeners
-	$("#dogButton").click(function(){
+	$("#dogButton").click(function () {
 		callDog();
 	})
 
-	$("#catButton").click(function(){
+	$("#catButton").click(function () {
 		callCat();
 	})
 
@@ -306,7 +311,7 @@ $(document).ready(function () {
 
 	// FIREBASE EVENT TRACKERS /////////////////////////////////////////////////////////////////////////////
 	// /////////////////////////////////////////////////////////////////////////////////////////////////////
-	
+
 	// Trigger card check whenever there is a new number drawn
 	randomPicksDb.on("child_added", function (snap) {
 
@@ -414,10 +419,9 @@ $(document).ready(function () {
 	// STARTUP PROCESS /////////////////////////////////////////////////////////////////////////////////////
 	// /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	// Calls BINGO! button function
+	// Calls startup screen functions
 	bingoButton();
-
-	// Calls Intro.js functions for Onboarding
+	launchSpinner();
 	introJs().start();
 
 });
