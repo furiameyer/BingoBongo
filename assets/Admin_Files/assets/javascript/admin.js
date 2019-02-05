@@ -44,7 +44,7 @@ $(document).ready(function () {
     var callTimer;
     var callsCounter = 0;
     var isThereAWinner;
-    var livePlayers = 0;
+    var livePlayers;;
 
 
     // Variables for tracking number of simultaneous connections to the database (condition of 3 to play)
@@ -99,9 +99,10 @@ $(document).ready(function () {
             callNumbersBag[i] = false;
         };
         randomPicksDb.remove();
-        clearInterval(callTimer);
         alreadyCalledArray = [];
         callsCounter = 0;
+        clearInterval(callTimer);
+        $("#round-kickoff").text("Kick Off");
     };
 
     // toggle ready to play
@@ -118,17 +119,14 @@ $(document).ready(function () {
         alreadyCalledArray = [];
         enabled2Play(true);
         setTimeout(enabled2Play(false),5000);
-        setTimeout(newRound, 20000);
+        setTimeout(newRound, 12000);
     });
 
     // Clears numbers database when button is pushed
     $("#clear-numbers-database").on("click", function () {
         event.preventDefault();
         $("#numbers-drawn").empty();
-        randomPicksDb.remove();
-        clearInterval(callTimer);
-        alreadyCalledArray = [];
-        callsCounter = 0;
+        resetRound();
     });
 
     // Clears players database when button is pushed
@@ -140,6 +138,7 @@ $(document).ready(function () {
     // FIREBASE EVENT TRACKERS /////////////////////////////////////////////////////////////////////////////
     // /////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    // new number called
     randomPicksDb.on("child_added", function (snap) {
         var numberDrawn = snap.val();
         alreadyCalledArray.push(numberDrawn);
@@ -147,6 +146,7 @@ $(document).ready(function () {
         $("#numbers-drawn").text(alreadyCalledArray.join("  .  "));
     });
 
+    // new player added
     activePlayerDb.on("child_added", function (snap) {
         var newPlayer = snap.key;
         playerArray.push(newPlayer);
@@ -154,22 +154,23 @@ $(document).ready(function () {
         $("#active-players").text(playerArray.join("  .  "));
     });
 
+    // player removed
     activePlayerDb.on("child_removed", function () {
-        $("#active-players").empty();
-        playerArray = [];
+        playerArray=[];
+        $("#clear-players-database").empty();
     });
 
     winConditionDb.on("child_changed", function (snap) {
         isThereAWinner = snap.val();
         if (isThereAWinner == true || isThereAWinner !== "Nobody") {
-            clearInterval(callTimer);
-            randomPicksDb.remove();
-            callsCounter = 0;
             $("#numbers-drawn").empty();
+            $("#round-kickoff").text("Wait...");
+            clearInterval(callTimer);
+            setTimeout(resetRound,13000);
         };
     });
 
-    // Keep track of number of live connections and trigger game when number of connections reaches 3
+    // Keep track of number of live connections
     connectedRef.on("value", function (snap) {
 
         // If they are connected..
@@ -192,7 +193,6 @@ $(document).ready(function () {
 
         // Kickoff button is enabled when there are three live players or more
         if (livePlayers > 2) {
-            console.log("game on!");
             $("#round-kickoff").prop("disabled", false);
         } else {
             $("#round-kickoff").prop("disabled", true);
