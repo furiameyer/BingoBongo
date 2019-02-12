@@ -3,6 +3,7 @@
 ## *Real-time online multiplayer Bingo*
 
 * Project source can be downloaded from: https://github.com/furiameyer/BingoBongo
+* Live instance of game can be found here: https://furiameyer.github.io/BingoBongo/
 
 * [For Presentation & Demo please click here](https://slides.com/smoss012/deck/live#/) 
 
